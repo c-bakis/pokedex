@@ -3,9 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="./styles/main.css">
+    <link rel="stylesheet" href="./assets/card.css">
+    <link rel="stylesheet" href="./assets/button.css">
     <title>Pokedex</title>
 </head>
-<body>
-    
+<body onload="loadPokemon()">
+    <header>
+        <div class="header-title-and-searchfield">
+                   <h1>Welcome to the Pokedex</h1>
+            <div class="search-field">
+                <input type="text" placeholder="Search your Pokemon">
+                <button class="search-btn btn"><img src="" alt=""></button>
+            </div> 
+        </div>
+        <div class="header-logo">
+            <img class="logo" src="" alt="">
+        </div>
+    </header>
+    <main>
+        <section id="content">
+            <div id="pokemon-cards-container" class="pokemon-cards-container">
+                <!-- Pokemon cards will be dynamically inserted here -->
+            </div>
+            <div class="load-cards">
+                <button class="load-cards-btn btn">Load more cards</button>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <img src="" alt="" class="logo">
+        <p>© 2025 My Pokedex. All rights reserved.</p>
+    </footer>
 </body>
+<script src="./scripts/script.js"></script>
+<script src="./scripts/template.js"></script>
 </html>
