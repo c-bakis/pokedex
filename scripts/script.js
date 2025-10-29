@@ -2,10 +2,21 @@
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
     let pokemonList = [];
+    let nextURL = null;
 
     async function loadPokemon() {
         let response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=40&offset=0');
         let data = await response.json();
+        nextURL = data.next;
+        pokemonContainer.innerHTML = '';
+        await renderAllPokemon(data.results);
+    }
+
+    async function loadMorePokemon() {
+        if (!nextURL) return;
+        let response = await fetch(nextURL);
+        let data = await response.json();
+        nextURL = data.next;
         await renderAllPokemon(data.results);
     }
 
@@ -31,8 +42,6 @@
         pokemonList = results;
 
         sortPokemonList();
-
-        pokemonContainer.innerHTML = '';
         pokemonList.forEach(pokemon => {
             pokemonContainer.innerHTML += renderPokemonCard(pokemon);
         });
