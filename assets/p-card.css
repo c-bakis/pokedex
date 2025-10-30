@@ -3,6 +3,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
+    background-image: url("./img/pokeball.png");
+    background-repeat: no-repeat;
+    background-position: 100% 20%;
+    background-size: 140px 140px;
+    background-blend-mode: overlay;
     border-radius: var(--border-radius);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 220px;

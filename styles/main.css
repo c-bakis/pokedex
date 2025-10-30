@@ -5,7 +5,7 @@
     --fire-type-color: #ce3e24;
     --water-type-color: #3872ee;
     --grass-type-color: #7cb920de;
-    --electric-type-color: #d3b611;
+    --electric-type-color: #f0c91c;
     --psychic-type-color: #d859a3;
     --normal-type-color: #91979b;
     --dark-type-color: #292e44;
@@ -26,7 +26,7 @@
     --font-weight-normal: 500;
     --font-weight-bold: 700;
     --border-radius: 10px;
-    --text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    --text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7);
 }
 
 .type-fire {
@@ -80,3 +80,4 @@
 .type-steel {
     background-color: var(--steel-type-color);
 }
+
