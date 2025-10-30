@@ -20,18 +20,27 @@
         await renderAllPokemon(data.results);
     }
 
+    async function loadAllPokemon() {
+        let url = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=${pokemonList.length}`;
+        let response = await fetch(url);
+        let data = await response.json();
+        pokemonContainer.innerHTML = '';
+        await renderAllPokemon(data.results);
+    } 
+
     async function loadPokemonDetails(pokemon) {
         let response = await fetch(pokemon.url);
         let data = await response.json();
         let pokemonData = {
             id: data.id,
             name: data.name,
-            image: data.sprites.front_default,
-            types: data.types.map(typeInfo => typeInfo.type.name)
-        };
-        return pokemonData;
-    }
-
+            image: data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default,
+            types: findTypes(data),
+            class: data.types[0].type.name,
+            }
+             return pokemonData;   
+    };
+    
     let sortPokemonList = () => {
         pokemonList.sort((a, b) => a.id - b.id);
         return pokemonList;
@@ -39,10 +48,24 @@
 
     let renderAllPokemon = async (pokemons) => {
         const results = await Promise.all(pokemons.map(pokemon => loadPokemonDetails(pokemon)));
-        pokemonList = results;
+        pokemonList = pokemonList.concat(results);
 
         sortPokemonList();
-        pokemonList.forEach(pokemon => {
-            pokemonContainer.innerHTML += renderPokemonCard(pokemon);
+       const html = pokemonList.map(pokemon => renderPokemonCard(pokemon)).join('');
+    pokemonContainer.innerHTML = html;
+    }
+
+    let alreadyLoadedPokemon = () => {
+        return pokemonList.length;
+    }
+    let findTypes = (data) => {
+        const typeIds = data.types.map(typeInfo => {
+            const parts = typeInfo.type.url.split('/').filter(Boolean);
+            return parts[parts.length - 1];
         });
+        return typeIds.map(id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/${id}.png`);
+    }
+
+    let insertTypes = (types) => {
+        return types.map(typeUrl => `<img src="${typeUrl}" class="pokemon-type-image">`).join('');
     }

@@ -2,22 +2,23 @@
     --bg-color: #112;
     --second-bg-color: #141433;
     --text-color: #ddddef;
-    --fire-type-color: #ce4c24;
+    --fire-type-color: #ce3e24;
     --water-type-color: #3872ee;
     --grass-type-color: #7cb920de;
     --electric-type-color: #d3b611;
     --psychic-type-color: #d859a3;
-    --normal-type-color: #878b8d;
-    --dark-type-color: #203075;
+    --normal-type-color: #91979b;
+    --dark-type-color: #292e44;
     --bug-type-color: #588525;
     --poison-type-color: #ad74bd;
     --ground-type-color: #926f2f;
     --fairy-type-color: #ce9abe;
-    --ice-type-color: #68dfd9;
+    --ice-type-color: #56c7cf;
     --fighting-type-color: #f07326;
-    --rock-type-color: #816b51;
+    --rock-type-color: #aa9479;
     --ghost-type-color: #705898;
-    --dragon-type-color: #f16e57;
+    --dragon-type-color: #461da5;
+    --steel-type-color: #76a2ad;
 
     --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --font-size-normal: 16px;
@@ -74,4 +75,7 @@
 }
 .type-dragon {
     background-color: var(--dragon-type-color);
+}
+.type-steel {
+    background-color: var(--steel-type-color);
 }
