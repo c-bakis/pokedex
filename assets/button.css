@@ -1,0 +1,8 @@
+
+.load-cards-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    border: none;
+}

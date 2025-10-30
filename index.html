@@ -6,12 +6,17 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/main.css">
+    <link rel="stylesheet" href="./styles/header.css">    
     <link rel="stylesheet" href="./assets/p-card.css">
     <link rel="stylesheet" href="./assets/button.css">
+    <link rel="stylesheet" href="./assets/burger-menu.css">
     <title>Pokedex</title>
 </head>
 <body onload="loadPokemon()">
     <header>
+        <div class="header-logo">
+            <img class="logo" src="./assets/img/pokeball.png" alt="pokeball logo">
+        </div>
         <div class="header-title-and-searchfield">
                    <h1>Welcome to the Pokedex</h1>
             <div class="search-field">
@@ -19,8 +24,25 @@
                 <button class="search-btn btn"><img src="" alt=""></button>
             </div> 
         </div>
-        <div class="header-logo">
-            <img class="logo" src="" alt="">
+        <div class="menu">
+                          
+             <input type="checkbox" id="burger-toggle" class="burger-toggle">
+            <label for="burger-toggle" class="burger-label">
+        <span class="bar top-bar"></span>
+        <span class="bar middle-bar"></span>
+        <span class="bar bottom-bar"></span>
+    </label>
+
+            
+           <nav class="burger-nav">
+            <ul>
+            <li><a href="./index.html">Startseite</a></li>
+            <li><a href="./recipe/spätzle-mit-hähnchen.html">Rezept des Tages</a></li>
+            <li><a href="./contact/contact-form.html">Kontakt</a></li>
+            <li><a href="./Impressum_und_Datenschutz/Impressum.html">Impressum</a></li>
+            </ul>
+            </nav>
+
         </div>
     </header>
     <main>
