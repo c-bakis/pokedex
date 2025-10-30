@@ -28,6 +28,16 @@
         await renderAllPokemon(data.results);
     } 
 
+    async function loadGenerationOfPokemon(firstId, lastId) {
+        const limit = lastId - firstId;
+        let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
+        let response = await fetch(url);
+        let data = await response.json();
+        nextURL = data.next;
+        pokemonContainer.innerHTML = '';
+        await renderAllPokemon(data.results);
+    }
+
     async function loadPokemonDetails(pokemon) {
         let response = await fetch(pokemon.url);
         let data = await response.json();
@@ -51,13 +61,10 @@
         pokemonList = pokemonList.concat(results);
 
         sortPokemonList();
-       const html = pokemonList.map(pokemon => renderPokemonCard(pokemon)).join('');
-    pokemonContainer.innerHTML = html;
+        const html = pokemonList.map(pokemon => renderPokemonCard(pokemon)).join('');
+        pokemonContainer.innerHTML = html;
     }
 
-    let alreadyLoadedPokemon = () => {
-        return pokemonList.length;
-    }
     let findTypes = (data) => {
         const typeIds = data.types.map(typeInfo => {
             const parts = typeInfo.type.url.split('/').filter(Boolean);
@@ -69,3 +76,41 @@
     let insertTypes = (types) => {
         return types.map(typeUrl => `<img src="${typeUrl}" class="pokemon-type-image">`).join('');
     }
+
+    let sortGeneration = (numofGeneration) => {
+    pokemonList = [];
+    pokemonContainer.innerHTML = '';
+    switch(numofGeneration) {
+        case 1:
+            loadGenerationOfPokemon(0, 151);
+            break;
+        case 2:
+            loadGenerationOfPokemon(151, 251);
+            break;
+        case 3:
+            loadGenerationOfPokemon(251, 386);
+            break;
+        case 4:
+            loadGenerationOfPokemon(386, 493);
+            break;
+        case 5:
+            loadGenerationOfPokemon(493, 649);
+            break;
+        case 6:
+            loadGenerationOfPokemon(649, 721);
+            break;
+        case 7:
+            loadGenerationOfPokemon(721, 809);
+            break;
+        case 8:
+            loadGenerationOfPokemon(809, 905);
+            break;
+        case 9:
+            loadGenerationOfPokemon(905, 1010);
+            break;
+        default:
+            console.log('Unknown generation');
+            loadPokemon(); 
+            break;
+    }
+}
