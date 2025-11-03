@@ -3,28 +3,30 @@
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
     let pokemonList = [];
-    let nextURL = null;
+    let currentOffset = 0;
 
     async function loadPokemon() {
+        currentOffset = 0;
+        console.log(currentOffset);
         let response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=40&offset=0');
         let data = await response.json();
-        nextURL = data.next;
         pokemonContainer.innerHTML = '';
         await renderAllPokemon(data.results);
     }
 
     async function loadMorePokemon() {
-        if (!nextURL) return;
-        let response = await fetch(nextURL);
+        currentOffset += 40;
+        console.log(currentOffset);
+        let URL = `https://pokeapi.co/api/v2/pokemon?limit=40&offset=${currentOffset}`;
+        let response = await fetch(URL);
         let data = await response.json();
-        nextURL = data.next;
-        console.log(nextURL);
+        console.log(URL);
         await renderAllPokemon(data.results);
     }
 
     async function loadAllPokemon() {
-        let url = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=${pokemonList.length}`;
-        let response = await fetch(url);
+        let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=${pokemonList.length}`;
+        let response = await fetch(URL);
         let data = await response.json();
         pokemonContainer.innerHTML = '';
         await renderAllPokemon(data.results);
@@ -32,10 +34,11 @@
 
     async function loadGenerationOfPokemon(firstId, lastId) {
         const limit = lastId - firstId;
+        currentOffset = lastId;
+        console.log(currentOffset);
         let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
         let response = await fetch(url);
         let data = await response.json();
-        nextURL = data.next;
         pokemonContainer.innerHTML = '';
         await renderAllPokemon(data.results);
     }
