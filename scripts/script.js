@@ -5,59 +5,71 @@
     let pokemonList = [];
     let currentOffset = 0;
 
+    // Safe fetch helper: returns parsed JSON or null on error
+    async function safeFetchJson(url) {
+        try {
+            const r = await fetch(url);
+            if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
+            return await r.json();
+        } catch (err) {
+            console.error('Fetch error:', err);
+            return null;
+        }
+    }
+
     async function loadPokemon() {
-        currentOffset = 0;
-        console.log(currentOffset);
-        let response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=40&offset=0');
-        let data = await response.json();
-        pokemonContainer.innerHTML = '';
-        await renderAllPokemon(data.results);
+    currentOffset = 0;
+    console.log(currentOffset);
+    const data = await safeFetchJson('https://pokeapi.co/api/v2/pokemon?limit=40&offset=0');
+    if (!data) return;
+    pokemonContainer.innerHTML = '';
+    await renderAllPokemon(data.results);
     }
 
     async function loadMorePokemon() {
-        currentOffset += 40;
-        console.log(currentOffset);
-        let URL = `https://pokeapi.co/api/v2/pokemon?limit=40&offset=${currentOffset}`;
-        let response = await fetch(URL);
-        let data = await response.json();
-        console.log(URL);
-        await renderAllPokemon(data.results);
+    currentOffset += 40;
+    console.log(currentOffset);
+    let URL = `https://pokeapi.co/api/v2/pokemon?limit=40&offset=${currentOffset}`;
+    let data = await safeFetchJson(URL);
+    if (!data) return;
+    console.log(URL);
+    await renderAllPokemon(data.results);
     }
 
     async function loadAllPokemon() {
-        let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=${pokemonList.length}`;
-        let response = await fetch(URL);
-        let data = await response.json();
-        pokemonContainer.innerHTML = '';
-        await renderAllPokemon(data.results);
+    let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=${pokemonList.length}`;
+    let data = await safeFetchJson(URL);
+    if (!data) return;
+    pokemonContainer.innerHTML = '';
+    await renderAllPokemon(data.results);
     } 
 
     async function loadGenerationOfPokemon(firstId, lastId) {
-        const limit = lastId - firstId;
-        currentOffset = lastId;
-        console.log(currentOffset);
-        let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
-        let response = await fetch(url);
-        let data = await response.json();
-        pokemonContainer.innerHTML = '';
-        await renderAllPokemon(data.results);
+    const limit = lastId - firstId;
+    currentOffset = lastId;
+    console.log(currentOffset);
+    let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
+    let data = await safeFetchJson(url);
+    if (!data) return;
+    pokemonContainer.innerHTML = '';
+    await renderAllPokemon(data.results);
     }
 
     async function loadPokemonDetails(pokemon) {
         if (pokemonCache.has(pokemon.url)) {
             return pokemonCache.get(pokemon.url);
         }
-        const response = await fetch(pokemon.url);
-        const data = await response.json();
+        const data = await safeFetchJson(pokemon.url);
+        if (!data) return null;
         const pokemonData = {
             id: data.id,
             name: data.name,
             image: data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default,
             types: findTypes(data),
-            class: data.types[0].type.name,
-            }
-            pokemonCache.set(pokemon.url, pokemonData);
-             return pokemonData;   
+            class: data.types && data.types[0] ? data.types[0].type.name : 'unknown'
+        };
+        pokemonCache.set(pokemon.url, pokemonData);
+        return pokemonData;
     };
     
     let sortPokemonList = () => {
@@ -67,7 +79,11 @@
 
     let renderAllPokemon = async (pokemons) => {
         const results = await Promise.all(pokemons.map(pokemon => loadPokemonDetails(pokemon)));
-        pokemonList = pokemonList.concat(results);
+        // Filter out failed (null) fetches
+        const validResults = results.filter(r => r !== null);
+        // Prevent duplicates by ID
+        const newItems = validResults.filter(r => !pokemonList.some(p => p.id === r.id));
+        pokemonList = pokemonList.concat(newItems);
 
         sortPokemonList();
         const html = pokemonList.map(pokemon => renderPokemonCard(pokemon)).join('');
@@ -86,7 +102,7 @@
         return types.map(typeUrl => `<img src="${typeUrl}" class="pokemon-type-image">`).join('');
     }
 
-    let sortGeneration = (numofGeneration) => {
+    async function sortGeneration(numofGeneration) {
     pokemonList = [];
     pokemonContainer.innerHTML = '';
     switch(numofGeneration) {
