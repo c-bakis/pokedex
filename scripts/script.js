@@ -1,4 +1,5 @@
 
+    const pokemonCache = new Map();
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
     let pokemonList = [];
@@ -17,6 +18,7 @@
         let response = await fetch(nextURL);
         let data = await response.json();
         nextURL = data.next;
+        console.log(nextURL);
         await renderAllPokemon(data.results);
     }
 
@@ -39,15 +41,19 @@
     }
 
     async function loadPokemonDetails(pokemon) {
-        let response = await fetch(pokemon.url);
-        let data = await response.json();
-        let pokemonData = {
+        if (pokemonCache.has(pokemon.url)) {
+            return pokemonCache.get(pokemon.url);
+        }
+        const response = await fetch(pokemon.url);
+        const data = await response.json();
+        const pokemonData = {
             id: data.id,
             name: data.name,
             image: data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default,
             types: findTypes(data),
             class: data.types[0].type.name,
             }
+            pokemonCache.set(pokemon.url, pokemonData);
              return pokemonData;   
     };
     
