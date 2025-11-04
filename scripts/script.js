@@ -5,6 +5,18 @@
     let pokemonList = [];
     let currentOffset = 0;
 
+    async function loadInChunks(pokemons) {
+        const chunkSize = 8;
+        const results = [];
+        for (let i = 0; i < pokemons.length; i += chunkSize) {
+            const chunk = pokemons.slice(i, i + chunkSize);
+            //  console.log(`Loading Pokemon ${i + 1}-${Math.min(i + chunkSize, pokemons.length)} of ${pokemons.length}`);
+            const chunkResults = await Promise.all(chunk.map(pokemon => loadPokemonDetails(pokemon)));
+            results.push(...chunkResults);
+        }
+        return results;
+    }
+
     // Safe fetch helper: returns parsed JSON or null on error
     async function safeFetchJson(url) {
         try {
@@ -37,7 +49,7 @@
     }
 
     async function loadAllPokemon() {
-    let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=${pokemonList.length}`;
+    let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0`;
     let data = await safeFetchJson(URL);
     if (!data) return;
     pokemonContainer.innerHTML = '';
@@ -78,8 +90,9 @@
     }
 
     let renderAllPokemon = async (pokemons) => {
-        const results = await Promise.all(pokemons.map(pokemon => loadPokemonDetails(pokemon)));
+        const results = await loadInChunks(pokemons);
         // Filter out failed (null) fetches
+        console.log(results);
         const validResults = results.filter(r => r !== null);
         // Prevent duplicates by ID
         const newItems = validResults.filter(r => !pokemonList.some(p => p.id === r.id));
