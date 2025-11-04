@@ -31,9 +31,11 @@
     transform: scale(1.05);
 }
 
-.pokemon-card img {
+    /* Main sprite: target only the main image, not all images inside the card */
+    .pokemon-card .pokemon-image {
     width: 140px;
     height: 140px;
+    object-fit: contain;
 }
 
 .pokemon-types {
@@ -41,6 +43,14 @@
     justify-content: center;
     gap: 10px;
     margin-top:10px;
+}
+
+.pokemon-types {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top:10px;
+    min-height: 20px; /* reserve space to avoid layout shift when icons load */
 }
 
 .pokemon-card .pokemon-types .pokemon-type-image {

@@ -112,7 +112,7 @@
     }
 
     let insertTypes = (types) => {
-        return types.map(typeUrl => `<img src="${typeUrl}" class="pokemon-type-image">`).join('');
+        return types.map(typeUrl => `<img src="${typeUrl}" class="pokemon-type-image" width="80" height="30" loading="lazy" alt="type icon">`).join('');
     }
 
     async function sortGeneration(numofGeneration) {
