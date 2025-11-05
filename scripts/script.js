@@ -5,16 +5,26 @@
     let pokemonList = [];
     let currentOffset = 0;
 
-    async function loadInChunks(pokemons) {
-        const chunkSize = 8;
+    async function asyncPool(items, asyncFn) {
+        const maxConcurrency = 12;
         const results = [];
-        for (let i = 0; i < pokemons.length; i += chunkSize) {
-            const chunk = pokemons.slice(i, i + chunkSize);
-            //  console.log(`Loading Pokemon ${i + 1}-${Math.min(i + chunkSize, pokemons.length)} of ${pokemons.length}`);
-            const chunkResults = await Promise.all(chunk.map(pokemon => loadPokemonDetails(pokemon)));
-            results.push(...chunkResults);
+        const executing = new Set();
+
+        for (const item of items) {
+            const p = Promise.resolve().then(() => asyncFn(item));
+            results.push(p);
+            executing.add(p);
+            // When the promise settles, remove it from the executing set
+            const clean = () => executing.delete(p);
+            p.then(clean).catch(clean);
+            console.log(executing.size);
+
+            if (executing.size >= maxConcurrency) {
+                await Promise.race(executing);
+            }
         }
-        return results;
+        const setteledResults = await Promise.allSettled(results);
+        return setteledResults.map(r => r.status === 'fulfilled' ? r.value : null);
     }
 
     // Safe fetch helper: returns parsed JSON or null on error
@@ -90,7 +100,7 @@
     }
 
     let renderAllPokemon = async (pokemons) => {
-        const results = await loadInChunks(pokemons);
+        const results = await asyncPool(pokemons, pokemon => loadPokemonDetails(pokemon));
         // Filter out failed (null) fetches
         console.log(results);
         const validResults = results.filter(r => r !== null);
