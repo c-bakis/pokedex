@@ -162,3 +162,17 @@
             break;
     }
 }
+
+/* --- UX: prevent background scroll when burger menu is open --- */
+(function setupBurgerNoScroll() {
+    // script tags are at the end of the body, so elements already exist
+    const toggle = document.getElementById('burger-toggle');
+    if (!toggle) return;
+
+    // Set initial state in case the toggle is pre-checked
+    document.body.classList.toggle('no-scroll', toggle.checked);
+
+    toggle.addEventListener('change', () => {
+        document.body.classList.toggle('no-scroll', toggle.checked);
+    });
+})();
