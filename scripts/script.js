@@ -1,5 +1,6 @@
 
     const pokemonCache = new Map();
+    const dialog = document.getElementById('dialogContent')
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
     let pokemonList = [];
@@ -163,16 +164,54 @@
     }
 }
 
-/* --- UX: prevent background scroll when burger menu is open --- */
-(function setupBurgerNoScroll() {
-    // script tags are at the end of the body, so elements already exist
-    const toggle = document.getElementById('burger-toggle');
-    if (!toggle) return;
+let setupNoScrollAndHover = () => {
+    document.body.classList.toggle('no-scroll');
+    let pokemonCards = document.querySelectorAll('.pokemon-card');
+    pokemonCards.forEach(card => (card.classList.toggle('hover')));
+}
 
-    // Set initial state in case the toggle is pre-checked
-    document.body.classList.toggle('no-scroll', toggle.checked);
+let openPokemonDialog = async (pokemonId) => {
+    await fetchPokemonDetails(pokemonId);
+    createDialog(pokemonId);
+    dialog.showModal();
+}
 
-    toggle.addEventListener('change', () => {
-        document.body.classList.toggle('no-scroll', toggle.checked);
-    });
-})();
+let fetchPokemonDetails = async (id) => {
+    const data = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    if (!data) return;
+    const pokemonData = {
+        id: data.id,
+        name: data.name,
+        image: data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default,
+        types: findTypes(data),
+        class: data.types && data.types[0] ? data.types[0].type.name : 'unknown',
+        abilities: data.abilities.map(ab => ab.ability.name),
+        height: data.height,
+        weight: data.weight,
+        stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
+        locationAreaEncounters: data.location_area_encounters,
+    };
+    const existingIndex = pokemonList.findIndex(p => p.id === id);
+    if (existingIndex !== -1) {
+        pokemonList[existingIndex] = pokemonData;
+    } else {
+        pokemonList.push(pokemonData);
+
+}
+    return pokemonData;
+}
+
+let createDialog = (pokemonId) => {
+    const pokemon = pokemonList.find(p => p.id === pokemonId);
+    if (!pokemon) return;
+    console.log(pokemon);
+    dialog.innerHTML = '';
+    dialog.innerHTML += pokemonDialog(pokemon);
+}
+
+let closePokemonDialog = () => {
+  if (dialog.open) {
+    dialog.close();
+    dialog.innerHTML = "";
+  }
+}
