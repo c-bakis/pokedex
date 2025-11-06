@@ -27,12 +27,11 @@
     margin-bottom: 10px;
 }
 
-.pokemon-card:hover {
+.hover:hover {
     transform: scale(1.05);
 }
 
-    /* Main sprite: target only the main image, not all images inside the card */
-    .pokemon-card .pokemon-image {
+.pokemon-card .pokemon-image {
     width: 140px;
     height: 140px;
     object-fit: contain;
