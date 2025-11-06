@@ -16,6 +16,7 @@ let renderPokemonCard = (pokemon) => {
 
 let pokemonDialog = (pokemon) => {
     return  `
+        <div class="inner-dialog">
         <div class="dialog-header type-${pokemon.class}">
             <h2>${pokemon.name} <span class="pokemon-number">#${pokemon.id}</span></h2>
             <button class="close-btn type-${pokemon.class}" onclick="closePokemonDialog()">&#10005;</button>
@@ -24,5 +25,6 @@ let pokemonDialog = (pokemon) => {
             <img src="${pokemon.image}" alt="${pokemon.name} image" class="dialog-pokemon-image img-${pokemon.class}" width="200" height="200" loading="lazy">
             <div class="dialog-pokemon-types">${insertTypes(pokemon.types)}</div>
         </div>
+        <div>
     `;
 }
