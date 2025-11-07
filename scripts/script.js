@@ -1,6 +1,11 @@
 
     const pokemonCache = new Map();
-    const dialog = document.getElementById('dialogContent')
+    const dialog = document.getElementById('dialogContent');
+    // Add event listener for dialog close events
+    dialog.addEventListener('close', () => {
+        dialog.innerHTML = '';
+        setupNoScrollAndHover(); // Reset scroll and hover states
+    });
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
     let pokemonList = [];
@@ -174,6 +179,7 @@ let openPokemonDialog = async (pokemonId) => {
     await fetchPokemonDetails(pokemonId);
     createDialog(pokemonId);
     dialog.showModal();
+    setupNoScrollAndHover();
 }
 
 let fetchPokemonDetails = async (id) => {
@@ -212,6 +218,11 @@ let createDialog = (pokemonId) => {
 let closePokemonDialog = () => {
   if (dialog.open) {
     dialog.close();
-    dialog.innerHTML = "";
   }
+}
+
+let closeDialogOutsideClick = (event) => {
+    if (event.target === dialog) {
+        closePokemonDialog();
+    }
 }

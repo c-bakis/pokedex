@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="./assets/burger-menu.css">
     <title>Pokedex</title>
 </head>
-<body onload="loadPokemon()" onclick="closePokemonDialog()">
+<body onload="loadPokemon()">
     <header>
         <div class="header-logo">
             <img class="logo" src="./assets/img/pokeball.png" alt="pokeball logo">
@@ -64,7 +64,7 @@
         </section>
 
         <section id="dialog">
-            <dialog id="dialogContent" class="dialog-content">
+            <dialog id="dialogContent" class="dialog-content" onclick="closeDialogOutsideClick(event)">
                 
             </dialog>
         </section>
