@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/main.css">
     <link rel="stylesheet" href="./styles/header.css">    
-    <link rel="stylesheet" href="./assets/p-card.css">   
-    <link rel="stylesheet" href="./assets/p-dialog.css">
+    <link rel="stylesheet" href="./assets/p-card.css">
     <link rel="stylesheet" href="./assets/button.css">
     <link rel="stylesheet" href="./assets/burger-menu.css">
     <title>Pokedex</title>
@@ -27,7 +26,7 @@
         </div>
         <div class="menu">
                           
-             <input onclick="setupNoScrollAndHover()" type="checkbox" id="burger-toggle" class="burger-toggle">
+             <input type="checkbox" id="burger-toggle" class="burger-toggle">
             <label for="burger-toggle" class="burger-label">
         <span class="bar top-bar"></span>
         <span class="bar middle-bar"></span>
@@ -61,12 +60,6 @@
             <div class="load-cards">
                 <button onclick="loadMorePokemon()" class="load-cards-btn btn">Load more cards</button>
             </div>
-        </section>
-
-        <section id="dialog">
-            <dialog id="dialogContent" class="dialog-content" onclick="closeDialogOutsideClick(event)">
-                
-            </dialog>
         </section>
     </main>
     <footer>

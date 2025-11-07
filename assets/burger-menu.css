@@ -110,10 +110,4 @@
     cursor: pointer;
 }
 
-/* When the menu is open we add this class to <body> to prevent background scrolling */
-.no-scroll {
-  overflow: hidden;
-  height: 100vh;
-  touch-action: none; /* improve behavior on touch devices */
-}
 

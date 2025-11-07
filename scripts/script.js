@@ -4,7 +4,7 @@
     // Add event listener for dialog close events
     dialog.addEventListener('close', () => {
         dialog.innerHTML = '';
-        setupNoScrollAndHover(); // Reset scroll and hover states
+        disableNoScrollAndEnableHover(); // Reset scroll and hover states
     });
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
@@ -169,17 +169,52 @@
     }
 }
 
-let setupNoScrollAndHover = () => {
-    document.body.classList.toggle('no-scroll');
-    let pokemonCards = document.querySelectorAll('.pokemon-card');
-    pokemonCards.forEach(card => (card.classList.toggle('hover')));
+// Utility: measure physical scrollbar width (robust)
+function getScrollbarWidth() {
+    // create temporary elements
+    const outer = document.createElement('div');
+    outer.style.visibility = 'hidden';
+    outer.style.overflow = 'scroll';
+    outer.style.msOverflowStyle = 'scrollbar';
+    outer.style.width = '100px';
+    outer.style.height = '100px';
+    document.body.appendChild(outer);
+
+    const inner = document.createElement('div');
+    inner.style.width = '100%';
+    inner.style.height = '100%';
+    outer.appendChild(inner);
+
+    const scrollbarWidth = outer.offsetWidth - outer.clientWidth;
+    outer.parentNode.removeChild(outer);
+    return scrollbarWidth;
+}
+
+function enableNoScrollAndDisableHover() {
+    const sb = getScrollbarWidth();
+    if (sb > 0) document.body.style.paddingRight = `${sb}px`;
+    document.body.classList.add('no-scroll');
+    document.querySelectorAll('.pokemon-card').forEach(card => card.classList.remove('hover'));
+}
+
+function disableNoScrollAndEnableHover() {
+    document.body.classList.remove('no-scroll');
+    document.body.style.paddingRight = '';
+    document.querySelectorAll('.pokemon-card').forEach(card => card.classList.add('hover'));
 }
 
 let openPokemonDialog = async (pokemonId) => {
     await fetchPokemonDetails(pokemonId);
     createDialog(pokemonId);
     dialog.showModal();
-    setupNoScrollAndHover();
+    enableNoScrollAndDisableHover();
+}
+
+// Called from the burger checkbox's onclick; pass the checkbox element (this)
+function handleBurgerToggle(checkbox) {
+    if (!checkbox) return;
+    if (checkbox.checked) enableNoScrollAndDisableHover();
+    else disableNoScrollAndEnableHover();
 }
 
 let fetchPokemonDetails = async (id) => {
@@ -226,3 +261,4 @@ let closeDialogOutsideClick = (event) => {
         closePokemonDialog();
     }
 }
+

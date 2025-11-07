@@ -12,7 +12,9 @@ footer {
 
 main {
     flex: 1;
-    padding: 20px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 20px 0;
 }
 
 #content {
@@ -29,3 +31,8 @@ main {
     justify-content: center;
 }
 
+.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+  touch-action: none; 
+}
