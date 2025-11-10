@@ -30,7 +30,7 @@
     border-radius: var(--border-radius);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
     max-height: 80vh;
 }
 
@@ -48,7 +48,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 20px 0;
     width: 50%;
     height: auto;
     max-width: 300px;
@@ -76,7 +76,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
     width: 100%;
 }
 
@@ -124,6 +123,6 @@
     border-radius: 0;
     padding: 6px;
     margin-left: -3px;
-    width: 80px;
+    width: 90px;
     transition: background-color 0.3s ease;
 }
