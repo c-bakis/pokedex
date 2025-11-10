@@ -16,15 +16,31 @@ let renderPokemonCard = (pokemon) => {
 
 let pokemonDialog = (pokemon) => {
     return  `
+        
+
         <div class="inner-dialog">
-        <div class="dialog-header type-${pokemon.class}">
+           <div class="dialog-header type-${pokemon.class}">
             <h2>${pokemon.name} <span class="pokemon-number">#${pokemon.id}</span></h2>
             <button class="close-btn type-${pokemon.class}" onclick="closePokemonDialog()">&#10005;</button>
         </div>
-        <div class="dialog-body">
-            <img src="${pokemon.image}" alt="${pokemon.name} image" class="dialog-pokemon-image img-${pokemon.class}" width="200" height="200" loading="lazy">
-            <div class="dialog-pokemon-types">${insertTypes(pokemon.types)}</div>
+        <div class="dialog-body-content">
+            <div class="left-inner-dialog">  
+                <div class="dialog-body">
+                    <img src="${pokemon.image}" alt="${pokemon.name} image" class="dialog-pokemon-image img-${pokemon.class}" width="200" height="200" loading="lazy">
+                    <div class="dialog-pokemon-types">${insertTypes(pokemon.types)}</div>
+                </div>
+            </div>
+
+            <div class="right-inner-dialog">
+                <div class="dialog-tabs">
+                    <button class="dialog-tab-button active" onclick="openTab(event, 'about')">About</button>
+                    <button class="dialog-tab-button" onclick="openTab(event, 'stats')">Base Stats</button>
+                    <button class="dialog-tab-button" onclick="openTab(event, 'moves')">Moves</button>
+                </div>
+                <div class="dialog-tab-content">
+                </div>
+            </div>
         </div>
-        <div>
+        </div>
     `;
 }
