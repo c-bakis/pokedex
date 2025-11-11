@@ -38,6 +38,3 @@ main {
     touch-action: none; 
     padding-right: 15px;
 }
-.max-height {
-    max-height: 100%;
-}

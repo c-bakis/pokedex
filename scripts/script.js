@@ -4,7 +4,8 @@
     // Add event listener for dialog close events
     dialog.addEventListener('close', () => {
         dialog.innerHTML = '';
-        setupNoScrollAndHover(); // Reset scroll and hover states
+        enableScroll();
+        setupNoScrollAndHover();
     });
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
@@ -170,11 +171,7 @@
 }
 
 let setupNoScrollAndHover = () => {
-    // document.body.classList.toggle('max-height');
     document.getElementById("main").classList.toggle('no-scroll');
-    // let pokemonCardContainer = document.getElementById('pokemon-cards-container');
-    // pokemonCardContainer.classList.toggle('no-scroll');
-   
     let pokemonCards = document.querySelectorAll('.pokemon-card');
     pokemonCards.forEach(card => (card.classList.toggle('hover')));
 }
@@ -188,7 +185,8 @@ let blockScroll = () => {
 }
 let enableScroll = () => {
     scrollElement.style.removeProperty('top');
-    window.scrollTo(0, scrollOffset);
+    setTimeout(() => window.scrollTo(0, scrollOffset), 0);
+    console.log(scrollOffset);
 }
 
 let openPokemonDialog = async (pokemonId) => {
@@ -235,7 +233,6 @@ let createDialog = (pokemonId) => {
 let closePokemonDialog = () => {
   if (dialog.open) {
     dialog.close();
-    enableScroll();
   }
 }
 
