@@ -18,6 +18,7 @@ main {
 }
 
 #content {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -32,7 +33,11 @@ main {
 }
 
 .no-scroll {
-  overflow: hidden;
-  height: 100vh;
-  touch-action: none; 
+    position: fixed;
+    overflow: hidden;
+    touch-action: none; 
+    padding-right: 15px;
+}
+.max-height {
+    max-height: 100%;
 }

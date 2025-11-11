@@ -170,15 +170,32 @@
 }
 
 let setupNoScrollAndHover = () => {
-    document.body.classList.toggle('no-scroll');
+    // document.body.classList.toggle('max-height');
+    document.getElementById("main").classList.toggle('no-scroll');
+    // let pokemonCardContainer = document.getElementById('pokemon-cards-container');
+    // pokemonCardContainer.classList.toggle('no-scroll');
+   
     let pokemonCards = document.querySelectorAll('.pokemon-card');
     pokemonCards.forEach(card => (card.classList.toggle('hover')));
+}
+
+let scrollOffset;
+const scrollElement = document.getElementById("main");
+
+let blockScroll = () => {
+    scrollOffset = window.pageYOffset;
+    scrollElement.style.top = `-${scrollOffset}px`;
+}
+let enableScroll = () => {
+    scrollElement.style.removeProperty('top');
+    window.scrollTo(0, scrollOffset);
 }
 
 let openPokemonDialog = async (pokemonId) => {
     await fetchPokemonDetails(pokemonId);
     createDialog(pokemonId);
     dialog.showModal();
+    blockScroll();
     setupNoScrollAndHover();
 }
 
@@ -218,6 +235,7 @@ let createDialog = (pokemonId) => {
 let closePokemonDialog = () => {
   if (dialog.open) {
     dialog.close();
+    enableScroll();
   }
 }
 
