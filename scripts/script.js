@@ -192,6 +192,7 @@ let enableScroll = () => {
 let openPokemonDialog = async (pokemonId) => {
     await fetchPokemonDetails(pokemonId);
     createDialog(pokemonId);
+    openTab(pokemonId);
     dialog.showModal();
     blockScroll();
     setupNoScrollAndHover();
@@ -207,6 +208,12 @@ let fetchPokemonDetails = async (id) => {
         types: findTypes(data),
         class: data.types && data.types[0] ? data.types[0].type.name : 'unknown',
         abilities: data.abilities.map(ab => ab.ability.name),
+        abilities_info: await asyncPool(data.abilities, async (ab) => {
+            const abilityData = await safeFetchJson(ab.ability.url);
+            if (!abilityData) return { name: ab.ability.name, effect: 'No data available' };
+            const effectEntry = abilityData.effect_entries.find(entry => entry.language.name === 'en');
+            return { name: ab.ability.name, effect: effectEntry ? effectEntry.effect : 'No effect description available' };
+        }),
         height: data.height,
         weight: data.weight,
         stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
@@ -222,12 +229,25 @@ let fetchPokemonDetails = async (id) => {
     return pokemonData;
 }
 
+let insertAbilitiesInfo = (abilities_info) => {
+    if (!abilities_info || abilities_info.length === 0) return 'None';
+    return abilities_info.map(ab => `<div><strong>${ab.name}</strong>: ${ab.effect}</div>`).join('');
+}
+
 let createDialog = (pokemonId) => {
     const pokemon = pokemonList.find(p => p.id === pokemonId);
     if (!pokemon) return;
     console.log(pokemon);
     dialog.innerHTML = '';
     dialog.innerHTML += pokemonDialog(pokemon);
+}
+
+let openTab = (pokemonId) => {
+    const pokemon = pokemonList.find(p => p.id === pokemonId);
+    if (!pokemon) return;
+    const tabContent = dialog.querySelector('.dialog-tab-content');
+    tabContent.innerHTML = '';
+    tabContent.innerHTML += aboutTab(pokemon);
 }
 
 let closePokemonDialog = () => {
@@ -242,3 +262,19 @@ let closeDialogOutsideClick = (event) => {
     }
 }
 
+let opentTab = (evt, tabName) => {
+    console.log(tabName);
+    console.log(evt.currentTarget);
+    // let i, tabcontent, tabbuttons;
+    // tabcontent = document.getElementsByClassName("dialog-tab-pane");
+    // for (i = 0; i < tabcontent.length; i++) {
+    //     tabcontent[i].style.display = "none";
+    // } 
+    // tabbuttons = document.getElementsByClassName("dialog-tab-button");
+    // for (i = 0; i < tabbuttons.length; i++) {
+    //     tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+    // }
+    // document.getElementById(tabName).style.display = "block";
+    // evt.currentTarget.className += " active";
+
+}

@@ -44,3 +44,13 @@ let pokemonDialog = (pokemon) => {
         </div>
     `;
 }
+
+let aboutTab = (pokemon) => {
+    return `
+        <div id="about" class="dialog-tab-pane active">
+            <p><strong>Height:</strong> ${pokemon.height} m</p>
+            <p><strong>Weight:</strong> ${pokemon.weight} kg</p>
+            <p><strong>Abilities:</strong> ${insertAbilitiesInfo(pokemon.abilities_info)}</p>
+        </div>
+    `;
+}
