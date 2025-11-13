@@ -214,8 +214,8 @@ let fetchPokemonDetails = async (id) => {
             const effectEntry = abilityData.effect_entries.find(entry => entry.language.name === 'en');
             return { name: ab.ability.name, effect: effectEntry ? effectEntry.effect : 'No effect description available' };
         }),
-        height: data.height,
-        weight: data.weight,
+        height: data.height / 10,
+        weight: data.weight / 10,
         stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
         locationAreaEncounters: data.location_area_encounters,
     };
