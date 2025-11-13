@@ -110,10 +110,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     width: 100%;
     height: 80%;
+    min-height: 350px;
     max-height: 500px;
-    overflow-y: scroll;
 }
 
 .dialog-tab-button {
@@ -139,4 +140,38 @@
 
 .dialog-tab-button:hover {
     background-color: var(--bg-color);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dialog-tab-pane {
+    width: 100%;
+}
+table th, table td {
+    text-align: left;
+    padding: 6px;
+    border-bottom: 1px solid var(--second-bg-color);
+}
+
+table tr td:first-child {
+    min-width: 120px;
+}
+.stats-bar {
+    width: 100%;
+    background-color: var(--second-bg-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    height: 15px;
+    margin-top: 5px;
+}
+
+.stats-bar-fill {
+    display: block;
+    height: 60%;
+    background-color: var(--accent-color);
+    border-radius: var(--border-radius);
+    width: 100%;
 }

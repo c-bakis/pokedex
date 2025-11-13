@@ -191,8 +191,10 @@ let enableScroll = () => {
 
 let openPokemonDialog = async (pokemonId) => {
     await fetchPokemonDetails(pokemonId);
-    createDialog(pokemonId);
-    openTab(pokemonId);
+    const pokemon = pokemonList.find(p => p.id === pokemonId);
+    createDialog(pokemon);
+    fillStatsBar(pokemon);
+    openTab(null, 'about');
     dialog.showModal();
     blockScroll();
     setupNoScrollAndHover();
@@ -226,6 +228,7 @@ let fetchPokemonDetails = async (id) => {
         pokemonList.push(pokemonData);
 
 }
+console.log(pokemonData.stats);
     return pokemonData;
 }
 
@@ -234,20 +237,22 @@ let insertAbilitiesInfo = (abilities_info) => {
     return abilities_info.map(ab => `<div><strong>${ab.name}</strong>: ${ab.effect}</div>`).join('');
 }
 
-let createDialog = (pokemonId) => {
-    const pokemon = pokemonList.find(p => p.id === pokemonId);
+let fillStatsBar = (pokemon) => {
+    const statsBars = document.querySelectorAll('.stats-bar-fill');
+    if (!pokemon || !pokemon.stats) return;
+    pokemon.stats.forEach((stat, index) => {
+        if (statsBars[index]) {
+            const percentage = Math.min(stat.value, 255) / 255 * 100;
+            statsBars[index].style.width =  `${percentage}%`;
+        }
+    });
+}
+// 
+let createDialog = (pokemon) => {
     if (!pokemon) return;
     console.log(pokemon);
     dialog.innerHTML = '';
     dialog.innerHTML += pokemonDialog(pokemon);
-}
-
-let openTab = (pokemonId) => {
-    const pokemon = pokemonList.find(p => p.id === pokemonId);
-    if (!pokemon) return;
-    const tabContent = dialog.querySelector('.dialog-tab-content');
-    tabContent.innerHTML = '';
-    tabContent.innerHTML += aboutTab(pokemon);
 }
 
 let closePokemonDialog = () => {
@@ -262,19 +267,22 @@ let closeDialogOutsideClick = (event) => {
     }
 }
 
-let opentTab = (evt, tabName) => {
-    console.log(tabName);
+let openTab = (evt, tabName) => {
+    let i, tabcontent, tabbuttons;
+    tabcontent = document.getElementsByClassName("dialog-tab-pane");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    } 
+    tabbuttons = document.getElementsByClassName("dialog-tab-button");
+    for (i = 0; i < tabbuttons.length; i++) {
+        if (evt !== null) {
+             tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+        }
+    }
+    document.getElementById(tabName).style.display = "block";
+    if (evt !== null) {
     console.log(evt.currentTarget);
-    // let i, tabcontent, tabbuttons;
-    // tabcontent = document.getElementsByClassName("dialog-tab-pane");
-    // for (i = 0; i < tabcontent.length; i++) {
-    //     tabcontent[i].style.display = "none";
-    // } 
-    // tabbuttons = document.getElementsByClassName("dialog-tab-button");
-    // for (i = 0; i < tabbuttons.length; i++) {
-    //     tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
-    // }
-    // document.getElementById(tabName).style.display = "block";
-    // evt.currentTarget.className += " active";
-
+        evt.currentTarget.className += " active";
+    }
 }
+

@@ -30,7 +30,7 @@ let pokemonDialog = (pokemon) => {
                     <div class="dialog-pokemon-types">${insertTypes(pokemon.types)}</div>
                 </div>
             </div>
-
+                
             <div class="right-inner-dialog">
                 <div class="dialog-tabs">
                     <button class="dialog-tab-button active" onclick="openTab(event, 'about')">About</button>
@@ -38,19 +38,59 @@ let pokemonDialog = (pokemon) => {
                     <button class="dialog-tab-button" onclick="openTab(event, 'moves')">Moves</button>
                 </div>
                 <div class="dialog-tab-content">
-                </div>
-            </div>
-        </div>
-        </div>
-    `;
-}
-
-let aboutTab = (pokemon) => {
-    return `
-        <div id="about" class="dialog-tab-pane active">
+                    <div id="about" class="dialog-tab-pane active">
             <p><strong>Height:</strong> ${pokemon.height} m</p>
             <p><strong>Weight:</strong> ${pokemon.weight} kg</p>
             <p><strong>Abilities:</strong> ${insertAbilitiesInfo(pokemon.abilities_info)}</p>
         </div>
+        
+         <div id="stats" class="dialog-tab-pane">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>HP</td>
+                        <td>${pokemon.stats[0].value}</td>
+                        <td class="stats-bar"><span class="stats-bar-fill"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Attack</td>
+                        <td>${pokemon.stats[1].value}</td>
+                        <td class="stats-bar"><span class="stats-bar-fill"></td>
+                    </tr>
+                    <tr>
+                        <td>Defense</td>
+                        <td>${pokemon.stats[2].value}</td>
+                        <td class="stats-bar"><span class="stats-bar-fill"></td>
+                    </tr>
+                    <tr>
+                        <td>Spec.-Attack</td>
+                        <td>${pokemon.stats[3].value}</td>
+                        <td class="stats-bar"><span class="stats-bar-fill"></td>
+                    </tr>
+                    <tr>
+                        <td>Spec.-Defense</td>
+                        <td>${pokemon.stats[4].value}</td>
+                        <td class="stats-bar"><span class="stats-bar-fill"></td>
+                    </tr>
+                    <tr>
+                        <td>Speed</td>
+                        <td>${pokemon.stats[5].value}</td>
+                        <td class="stats-bar"><span class="stats-bar-fill"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+         
     `;
 }
+
+// let Tab = (pokemon) => {
+//     return `
+       
+//     `;
+// }
