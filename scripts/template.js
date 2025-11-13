@@ -39,9 +39,15 @@ let pokemonDialog = (pokemon) => {
                 </div>
                 <div class="dialog-tab-content">
                     <div id="about" class="dialog-tab-pane active">
-            <p><strong>Height:</strong> ${pokemon.height} m</p>
-            <p><strong>Weight:</strong> ${pokemon.weight} kg</p>
-            <p><strong>Abilities:</strong> ${insertAbilitiesInfo(pokemon.abilities_info)}</p>
+                        <div class="height-and-weight">
+                            <p><strong>Height:</strong> ${pokemon.height} m</p>
+                            <p><strong>Weight:</strong> ${pokemon.weight} kg</p>
+                        </div>  
+                            <p><strong>Description: </strong></p>
+                            <p>${pokemon.description}</p>
+                           <div class="abilities"><strong>Abilities:</strong> ${insertAbilitiesInfo(pokemon.abilities_info)}</div>
+                       
+
         </div>
         
          <div id="stats" class="dialog-tab-pane">
@@ -94,3 +100,6 @@ let pokemonDialog = (pokemon) => {
        
 //     `;
 // }
+                        // <div class="pokemon-description">
+                        //     <p>${pokemon.description}</p>
+                        // </div>
