@@ -6,6 +6,8 @@
 }
 
 html {
+    scrollbar-width: thin;    
+    scrollbar-color: var(--accent-color) var(--second-bg-color);
     overflow-x: hidden;
     width: 100%;
 }
