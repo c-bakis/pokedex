@@ -216,6 +216,12 @@ let fetchPokemonDetails = async (id) => {
             const effectEntry = abilityData.effect_entries.find(entry => entry.language.name === 'en');
             return { name: ab.ability.name, effect: effectEntry ? effectEntry.effect : 'No effect description available' };
         }),
+        description: await (async () => {
+            const speciesData = await safeFetchJson(data.species.url);
+            if (!speciesData) return 'No description available';
+            const flavorEntry = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en');
+            return flavorEntry ? flavorEntry.flavor_text.replace(/\f/g, ' ') : 'No description available';
+        })(),
         height: data.height / 10,
         weight: data.weight / 10,
         stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
