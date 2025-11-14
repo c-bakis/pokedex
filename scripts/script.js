@@ -92,7 +92,7 @@
         if (!data) return null;
         const pokemonData = {
             id: data.id,
-            name: data.name,
+            name: await findGermanName(data.id) || data.name,
             image: data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default,
             types: findTypes(data),
             class: data.types && data.types[0] ? data.types[0].type.name : 'unknown'
@@ -118,6 +118,13 @@
         sortPokemonList();
         const html = pokemonList.map(pokemon => renderPokemonCard(pokemon)).join('');
         pokemonContainer.innerHTML = html;
+    }
+
+    let findGermanName = async (pokemonId) => {
+        const speciesData = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
+        if (!speciesData) return null;
+        const germanEntry = speciesData.names.find(nameEntry => nameEntry.language.name === 'de');
+        return germanEntry ? germanEntry.name : null;
     }
 
     let findTypes = (data) => {
@@ -226,6 +233,7 @@ let fetchPokemonDetails = async (id) => {
         weight: data.weight / 10,
         stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
         locationAreaEncounters: data.location_area_encounters,
+        evolution: await getEvolutionChain(data.speciesUrl),
     };
     const existingIndex = pokemonList.findIndex(p => p.id === id);
     if (existingIndex !== -1) {
@@ -236,6 +244,21 @@ let fetchPokemonDetails = async (id) => {
 }
 console.log(pokemonData.stats);
     return pokemonData;
+}
+
+let getEvolutionChain = async (speciesUrl) => {
+            const speciesData = await safeFetchJson(speciesUrl);
+            if (!speciesData || !speciesData.evolution_chain) return [];
+            const evolutionChainData = await safeFetchJson(speciesData.evolution_chain.url);
+            if (!evolutionChainData) return [];
+            const evolutions = [];
+            let currentStage = evolutionChainData.chain;
+            while (currentStage) {
+                evolutions.push(currentStage.species.name);
+                currentStage = currentStage.evolves_to.length > 0 ? currentStage.evolves_to[0] : null;
+            }
+            console.log(evolutions);
+            return evolutions;
 }
 
 let insertAbilitiesInfo = (abilities_info) => {
