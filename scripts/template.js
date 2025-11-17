@@ -1,14 +1,16 @@
 
 let renderPokemonCard = (pokemon) => {
     return `
-                 <div class="pokemon-card hover type-${pokemon.class}" id="pokemon-${pokemon.id}" onclick="openPokemonDialog(${pokemon.id})">
+                 <div class="pokemon-card hover type-${pokemon.class}" id="pokemon-${pokemon.id}" 
+                        onclick="openPokemonDialog(${pokemon.id})" role="button" tabindex="0">
                     <div class="pokemon-name-number">
                         <h3>
                             <span class="pokemon-number">#${pokemon.id}</span>
                             <span class="pokemon-name">${pokemon.name}</span>
                         </h3>
                     </div>
-                    <img src="${pokemon.image}" alt="${pokemon.name} image" class="pokemon-image img-${pokemon.class}" width="140" height="140" loading="lazy">
+                    <img src="${pokemon.image}" alt="${pokemon.name} image" class="pokemon-image img-${pokemon.class}" 
+                            width="140" height="140" loading="lazy">
                     <div class="pokemon-types">${insertTypes(pokemon.types)}</div>
                  </div>
     `;
@@ -26,27 +28,36 @@ let pokemonDialog = (pokemon) => {
         <div class="dialog-body-content">
             <div class="left-inner-dialog">  
                 <div class="dialog-body">
-                    <img src="${pokemon.image}" alt="${pokemon.name} image" class="dialog-pokemon-image img-${pokemon.class}" width="200" height="200" loading="lazy">
+                    <img src="${pokemon.image}" alt="${pokemon.name} image" class="dialog-pokemon-image 
+                            img-${pokemon.class}" loading="lazy">
                     <div class="dialog-pokemon-types">${insertTypes(pokemon.types)}</div>
                 </div>
             </div>
                 
             <div class="right-inner-dialog">
                 <div class="dialog-tabs">
-                    <button class="dialog-tab-button active" onclick="openTab(event, 'about')">About</button>
-                    <button class="dialog-tab-button" onclick="openTab(event, 'stats')">Base Stats</button>
-                    <button class="dialog-tab-button" onclick="openTab(event, 'moves')">Moves</button>
+                    <button class="dialog-tab-button active" onclick="openTab(event, 'about')">Info</button>
+                    <button class="dialog-tab-button" onclick="openTab(event, 'ability')">Fähigkeiten</button>
+                    <button class="dialog-tab-button" onclick="openTab(event, 'stats')">Basis Werte</button>
+                    <button class="dialog-tab-button" onclick="openTab(event, 'evolution')">Entwicklung</button>
+                    <button class="dialog-tab-button" onclick="openTab(event, 'moves')">Attacken</button>
                 </div>
                 <div class="dialog-tab-content">
                     <div id="about" class="dialog-tab-pane active">
                         <div class="height-and-weight">
-                            <p><strong>Height:</strong> ${pokemon.height} m</p>
-                            <p><strong>Weight:</strong> ${pokemon.weight} kg</p>
+                            <p><strong>Größe:</strong> ${pokemon.height} m</p>
+                            <p><strong>Gewicht:</strong> ${pokemon.weight} kg</p>
                         </div>  
-                            <p><strong>Description: </strong></p>
+                            <p class="description"><strong>Beschreibung: </strong></p>
                             <p>${pokemon.description}</p>
-                           <div class="abilities"><strong>Abilities:</strong> ${insertAbilitiesInfo(pokemon.abilities_info)}</div>
-                       
+                            <p class="abilities"><strong>Fähigkeiten:</strong></p>
+                            <p>${insertAbilitiesInfo(pokemon.abilities_info, "names_only")}</p>
+                    </div>
+        
+         <div id="ability" class="dialog-tab-pane">
+            <div class="abilities-info">
+                ${insertAbilitiesInfo(pokemon.abilities_info, "with_effects")}
+            </div>
 
         </div>
         

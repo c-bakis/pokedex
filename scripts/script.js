@@ -1,5 +1,9 @@
 
     const pokemonCache = new Map();
+    // Cache raw pokemon API responses keyed by numeric id to avoid re-fetching
+    const pokemonRawCache = new Map();
+    // Cache species responses to avoid re-fetching species endpoints
+    const pokemonSpeciesCache = new Map();
     const dialog = document.getElementById('dialogContent');
     // Add event listener for dialog close events
     dialog.addEventListener('close', () => {
@@ -97,9 +101,80 @@
             types: findTypes(data),
             class: data.types && data.types[0] ? data.types[0].type.name : 'unknown'
         };
+        // Cache both a small summary (by URL and by id) and the full raw data (by id)
         pokemonCache.set(pokemon.url, pokemonData);
+        pokemonCache.set(data.id, pokemonData);
+        pokemonRawCache.set(data.id, data);
         return pokemonData;
     };
+
+    let fetchPokemonDetails = async (id) => {
+        console.log('fetchPokemonDetails', id);
+        const cachedSummary = pokemonCache.has(id) ? pokemonCache.get(id) : null;
+        let data = pokemonRawCache.has(id) ? pokemonRawCache.get(id) : null;
+        if (!data) {
+            data = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon/${id}`);
+            if (!data) return;
+            pokemonRawCache.set(id, data);
+        }
+        const base = {
+            id: cachedSummary ? cachedSummary.id : data.id,
+            name: cachedSummary ? cachedSummary.name : data.name,
+            image: cachedSummary ? cachedSummary.image : (data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default),
+            types: cachedSummary ? cachedSummary.types : findTypes(data),
+            class: cachedSummary ? cachedSummary.class : (data.types && data.types[0] ? data.types[0].type.name : 'unknown')
+        };
+        if (!pokemonCache.has(id)) {
+            const germanName = await findGermanName(base.id) || base.name;
+            const summary = { id: base.id, name: germanName, image: base.image, types: base.types, class: base.class };
+            pokemonCache.set(id, summary);
+        }
+        const abilities = data.abilities.map(ab => ab.ability.name);
+        const abilities_info = await asyncPool(data.abilities, async (ab) => {
+            const abilityData = await safeFetchJson(ab.ability.url);
+            if (!abilityData) return { name: ab.ability.name, effect: 'No data available' };
+            const effectEntry = abilityData.effect_entries.find(entry => entry.language.name === 'de');
+            const abilityName = abilityData.names.find(nameEntry => nameEntry.language.name === 'de');
+            return { name: abilityName.name, effect: effectEntry ? effectEntry.effect : 'No effect description available' };
+        });
+
+        let speciesData = null;
+        const speciesUrl = data.species && data.species.url;
+        if (speciesUrl) {
+            if (pokemonSpeciesCache.has(speciesUrl)) {
+                speciesData = pokemonSpeciesCache.get(speciesUrl);
+            } else {
+                speciesData = await safeFetchJson(speciesUrl);
+                if (speciesData) pokemonSpeciesCache.set(speciesUrl, speciesData);
+            }
+        }
+
+        const description = (speciesData && speciesData.flavor_text_entries)
+            ? (speciesData.flavor_text_entries.find(entry => entry.language.name === 'de') || { flavor_text: 'No description available' }).flavor_text.replace(/\f/g, ' ')
+            : 'No description available';
+
+        const pokemonData = {
+            ...base,
+            abilities,
+            abilities_info,
+            description,
+            height: data.height / 10,
+            weight: data.weight / 10,
+            stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
+            locationAreaEncounters: data.location_area_encounters,
+            evolution: speciesData ? await getEvolutionChain(speciesUrl) : []
+        };
+
+        const existingIndex = pokemonList.findIndex(p => p.id === id);
+        if (existingIndex !== -1) {
+            pokemonList[existingIndex] = pokemonData;
+        } else {
+            pokemonList.push(pokemonData);
+        }
+
+        console.log(pokemonData);
+        return pokemonData;
+    }
     
     let sortPokemonList = () => {
         pokemonList.sort((a, b) => a.id - b.id);
@@ -207,63 +282,47 @@ let openPokemonDialog = async (pokemonId) => {
     setupNoScrollAndHover();
 }
 
-let fetchPokemonDetails = async (id) => {
-    const data = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon/${id}`);
-    if (!data) return;
-    const pokemonData = {
-        id: data.id,
-        name: data.name,
-        image: data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default,
-        types: findTypes(data),
-        class: data.types && data.types[0] ? data.types[0].type.name : 'unknown',
-        abilities: data.abilities.map(ab => ab.ability.name),
-        abilities_info: await asyncPool(data.abilities, async (ab) => {
-            const abilityData = await safeFetchJson(ab.ability.url);
-            if (!abilityData) return { name: ab.ability.name, effect: 'No data available' };
-            const effectEntry = abilityData.effect_entries.find(entry => entry.language.name === 'en');
-            return { name: ab.ability.name, effect: effectEntry ? effectEntry.effect : 'No effect description available' };
-        }),
-        description: await (async () => {
-            const speciesData = await safeFetchJson(data.species.url);
-            if (!speciesData) return 'No description available';
-            const flavorEntry = speciesData.flavor_text_entries.find(entry => entry.language.name === 'en');
-            return flavorEntry ? flavorEntry.flavor_text.replace(/\f/g, ' ') : 'No description available';
-        })(),
-        height: data.height / 10,
-        weight: data.weight / 10,
-        stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
-        locationAreaEncounters: data.location_area_encounters,
-        evolution: await getEvolutionChain(data.speciesUrl),
-    };
-    const existingIndex = pokemonList.findIndex(p => p.id === id);
-    if (existingIndex !== -1) {
-        pokemonList[existingIndex] = pokemonData;
-    } else {
-        pokemonList.push(pokemonData);
-
-}
-console.log(pokemonData.stats);
-    return pokemonData;
-}
 
 let getEvolutionChain = async (speciesUrl) => {
-            const speciesData = await safeFetchJson(speciesUrl);
-            if (!speciesData || !speciesData.evolution_chain) return [];
-            const evolutionChainData = await safeFetchJson(speciesData.evolution_chain.url);
-            if (!evolutionChainData) return [];
-            const evolutions = [];
-            let currentStage = evolutionChainData.chain;
-            while (currentStage) {
-                evolutions.push(currentStage.species.name);
-                currentStage = currentStage.evolves_to.length > 0 ? currentStage.evolves_to[0] : null;
-            }
-            console.log(evolutions);
-            return evolutions;
+    // Try to reuse species/evolution chain cache
+    let speciesData = null;
+    if (pokemonSpeciesCache.has(speciesUrl)) {
+        speciesData = pokemonSpeciesCache.get(speciesUrl);
+    } else {
+        speciesData = await safeFetchJson(speciesUrl);
+        if (speciesData) pokemonSpeciesCache.set(speciesUrl, speciesData);
+    }
+    if (!speciesData || !speciesData.evolution_chain) return [];
+
+    const evoUrl = speciesData.evolution_chain.url;
+    let evolutionChainData = null;
+    if (pokemonSpeciesCache.has(evoUrl)) {
+        evolutionChainData = pokemonSpeciesCache.get(evoUrl);
+    } else {
+        evolutionChainData = await safeFetchJson(evoUrl);
+        if (evolutionChainData) pokemonSpeciesCache.set(evoUrl, evolutionChainData);
+    }
+    if (!evolutionChainData) return [];
+
+    const evolutions = [];
+    let currentStage = evolutionChainData.chain;
+    while (currentStage) {
+        evolutions.push(currentStage.species.name);
+        currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0 ? currentStage.evolves_to[0] : null;
+    }
+    console.log(evolutions);
+    return evolutions;
 }
 
-let insertAbilitiesInfo = (abilities_info) => {
+let insertAbilitiesInfo = (abilities_info, condition) => {
     if (!abilities_info || abilities_info.length === 0) return 'None';
-    return abilities_info.map(ab => `<div><strong>${ab.name}</strong>: ${ab.effect}</div>`).join('');
+    else if (condition === "names_only") {
+        return abilities_info.map(ab => ab.name).join(', ');
+    } else if (condition === "with_effects") {
+        return abilities_info.map(ab => `<div><strong>${ab.name}</strong>: ${ab.effect}</div>`).join('');
+    } else {
+        return '';
+    }
 }
 
 let fillStatsBar = (pokemon) => {
