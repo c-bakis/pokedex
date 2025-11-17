@@ -17,7 +17,7 @@
 }
 
 .pokemon-card h3 {
-    font-size: var(--font-size-large);
+    font-size: var(--font-size-xlarge);
     font-weight: var(--font-weight-bold);
     text-shadow: var(--text-shadow);
     margin-bottom: 10px;

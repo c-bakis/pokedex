@@ -1,6 +1,7 @@
 :root {
     --bg-color: #14142b;
     --second-bg-color: #161644;
+    --pokemon-dialog-bg-color: #16164459;
     --text-color: #ddddef;
     --accent-color: #408500;
     --fire-type-color: #ce3e24;
@@ -24,7 +25,8 @@
     --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --font-size-small: 14px;
     --font-size-normal: 16px;
-    --font-size-large: 24px;
+    --font-size-large: 20px;
+    --font-size-xlarge: 26px;
     --font-weight-normal: 500;
     --font-weight-bold: 700;
     --border-radius: 10px;
