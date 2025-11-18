@@ -101,7 +101,6 @@
             types: findTypes(data),
             class: data.types && data.types[0] ? data.types[0].type.name : 'unknown'
         };
-        // Cache both a small summary (by URL and by id) and the full raw data (by id)
         pokemonCache.set(pokemon.url, pokemonData);
         pokemonCache.set(data.id, pokemonData);
         pokemonRawCache.set(data.id, data);
@@ -109,12 +108,40 @@
     };
 
     let fetchPokemonDetails = async (id) => {
-        console.log('fetchPokemonDetails', id);
-        const cachedSummary = pokemonCache.has(id) ? pokemonCache.get(id) : null;
         let data = pokemonRawCache.has(id) ? pokemonRawCache.get(id) : null;
+        let base = await getBaseData(id, data);
+        if (!pokemonCache.has(id)) {
+            const germanName = await findGermanName(base.id) || base.name;
+            const summary = { id: base.id, name: germanName, image: base.image, types: base.types, class: base.class };
+            pokemonCache.set(id, summary);
+        }
+        const abilities_info = await getAbilityData(data.abilities);
+        const speciesUrl = data.species && data.species.url;
+        const speciesData = await getSpeciesData(speciesUrl);
+        const description = (speciesData && speciesData.flavor_text_entries)
+            ? (speciesData.flavor_text_entries.find(entry => entry.language.name === 'de') || { flavor_text: 'Keine Beschreibung verfügbar' }).flavor_text.replace(/\f/g, ' ')
+            : 'Keine Beschreibung verfügbar';
+
+        const pokemonData = {
+            ...base,
+            abilities_info,
+            description,
+            height: data.height / 10,
+            weight: data.weight / 10,
+            stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
+            locationAreaEncounters: data.location_area_encounters,
+            evolution: speciesData ? await getEvolutionChain(speciesUrl) : []
+    }
+        await indexExist(pokemonData);
+        console.log(pokemonData);
+        return pokemonData;
+    }
+
+    let getBaseData = async (id, data) => {
+        const cachedSummary = pokemonCache.has(id) ? pokemonCache.get(id) : null;
         if (!data) {
             data = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon/${id}`);
-            if (!data) return;
+            if (!data) return null;
             pokemonRawCache.set(id, data);
         }
         const base = {
@@ -123,23 +150,41 @@
             image: cachedSummary ? cachedSummary.image : (data.sprites.other.dream_world.front_default ? data.sprites.other.dream_world.front_default : data.sprites.front_default),
             types: cachedSummary ? cachedSummary.types : findTypes(data),
             class: cachedSummary ? cachedSummary.class : (data.types && data.types[0] ? data.types[0].type.name : 'unknown')
-        };
-        if (!pokemonCache.has(id)) {
-            const germanName = await findGermanName(base.id) || base.name;
-            const summary = { id: base.id, name: germanName, image: base.image, types: base.types, class: base.class };
-            pokemonCache.set(id, summary);
+        };  
+        return base;
+    };
+
+    let indexExist = async (pokemonData) => {
+        if (!pokemonData || typeof pokemonData.id === 'undefined') {
+            console.warn('indexExist called without pokemonData or id');
+            return false;
         }
-        const abilities = data.abilities.map(ab => ab.ability.name);
-        const abilities_info = await asyncPool(data.abilities, async (ab) => {
+        const id = pokemonData.id;
+        const existingIndex = pokemonList.findIndex(p => p.id === id);
+        if (existingIndex !== -1) {
+            pokemonList[existingIndex] = pokemonData;
+            console.log(`indexExist: updated pokemon id=${id} at index ${existingIndex}`);
+            return true; // existed
+        } else {
+            pokemonList.push(pokemonData);
+            console.log(`indexExist: added pokemon id=${id}`);
+            return false; // did not exist
+        }
+    }
+
+    let getAbilityData = async (abilities) => {
+        const abilitiesInfo = await asyncPool(abilities, async (ab) => {
             const abilityData = await safeFetchJson(ab.ability.url);
             if (!abilityData) return { name: ab.ability.name, effect: 'No data available' };
             const effectEntry = abilityData.effect_entries.find(entry => entry.language.name === 'de');
             const abilityName = abilityData.names.find(nameEntry => nameEntry.language.name === 'de');
-            return { name: abilityName.name, effect: effectEntry ? effectEntry.effect : 'No effect description available' };
+            return { name: abilityName.name, effect: effectEntry ? effectEntry.effect : 'Keine Beschreibung verfügbar' };
         });
-
+        return abilitiesInfo;
+    } 
+    
+    let getSpeciesData = async (speciesUrl) => {
         let speciesData = null;
-        const speciesUrl = data.species && data.species.url;
         if (speciesUrl) {
             if (pokemonSpeciesCache.has(speciesUrl)) {
                 speciesData = pokemonSpeciesCache.get(speciesUrl);
@@ -148,51 +193,7 @@
                 if (speciesData) pokemonSpeciesCache.set(speciesUrl, speciesData);
             }
         }
-
-        const description = (speciesData && speciesData.flavor_text_entries)
-            ? (speciesData.flavor_text_entries.find(entry => entry.language.name === 'de') || { flavor_text: 'No description available' }).flavor_text.replace(/\f/g, ' ')
-            : 'No description available';
-
-        const pokemonData = {
-            ...base,
-            abilities,
-            abilities_info,
-            description,
-            height: data.height / 10,
-            weight: data.weight / 10,
-            stats: data.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
-            locationAreaEncounters: data.location_area_encounters,
-            evolution: speciesData ? await getEvolutionChain(speciesUrl) : []
-        };
-
-        const existingIndex = pokemonList.findIndex(p => p.id === id);
-        if (existingIndex !== -1) {
-            pokemonList[existingIndex] = pokemonData;
-        } else {
-            pokemonList.push(pokemonData);
-        }
-
-        console.log(pokemonData);
-        return pokemonData;
-    }
-    
-    let sortPokemonList = () => {
-        pokemonList.sort((a, b) => a.id - b.id);
-        return pokemonList;
-    }
-
-    let renderAllPokemon = async (pokemons) => {
-        const results = await asyncPool(pokemons, pokemon => loadPokemonDetails(pokemon));
-        // Filter out failed (null) fetches
-        console.log(results);
-        const validResults = results.filter(r => r !== null);
-        // Prevent duplicates by ID
-        const newItems = validResults.filter(r => !pokemonList.some(p => p.id === r.id));
-        pokemonList = pokemonList.concat(newItems);
-
-        sortPokemonList();
-        const html = pokemonList.map(pokemon => renderPokemonCard(pokemon)).join('');
-        pokemonContainer.innerHTML = html;
+        return speciesData;
     }
 
     let findGermanName = async (pokemonId) => {
@@ -212,6 +213,23 @@
 
     let insertTypes = (types) => {
         return types.map(typeUrl => `<img src="${typeUrl}" class="pokemon-type-image" width="80" height="30" loading="lazy" alt="type icon">`).join('');
+    } 
+
+    let sortPokemonList = () => {
+        pokemonList.sort((a, b) => a.id - b.id);
+        return pokemonList;
+    }
+
+    let renderAllPokemon = async (pokemons) => {
+        const results = await asyncPool(pokemons, pokemon => loadPokemonDetails(pokemon));
+        console.log(results);
+        const validResults = results.filter(r => r !== null);
+        const newItems = validResults.filter(r => !pokemonList.some(p => p.id === r.id));
+        pokemonList = pokemonList.concat(newItems);
+
+        sortPokemonList();
+        const html = pokemonList.map(pokemon => renderPokemonCard(pokemon)).join('');
+        pokemonContainer.innerHTML = html;
     }
 
     async function sortGeneration(numofGeneration) {
@@ -243,7 +261,7 @@
             loadGenerationOfPokemon(809, 905);
             break;
         case 9:
-            loadGenerationOfPokemon(905, 1010);
+            loadGenerationOfPokemon(905, 1025);
             break;
         default:
             console.log('Unknown generation');

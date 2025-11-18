@@ -125,7 +125,7 @@
     border-radius: 0;
     padding: 6px;
     margin-left: -3px;
-    width: 95px;
+    width: 100px;
     transition: background-color 0.3s ease;
 }
 
@@ -204,4 +204,10 @@ table tr td:nth-child(2) {
     background-color: var(--accent-color);
     border-radius: var(--border-radius);
     width: 100%;
+}
+
+.abilities-info div {
+    padding: 15px;
+    margin-bottom: 10px;
+    line-height: 1.75;
 }
