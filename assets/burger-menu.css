@@ -46,7 +46,6 @@
   top: 0;
   right: -300px;
   width: 100%;
-  max-width: 60vw;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.9);
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
@@ -100,13 +99,14 @@
 
 .sort-bt {
     width: 100%;
+    max-width: 100vw;
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: var(--font-size-normal);
+    font-size: var(--font-size-large);
     font-family: var(--font);
-    text-align: left;
-    padding: 15px;
+    text-align: center;
+    padding: 20px;
     cursor: pointer;
 }
 
