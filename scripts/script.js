@@ -5,11 +5,14 @@
     // Cache species responses to avoid re-fetching species endpoints
     const pokemonSpeciesCache = new Map();
     const dialog = document.getElementById('dialogContent');
-    // Add event listener for dialog close events
+    const dialogSection = document.getElementById('dialog');
+
+
     dialog.addEventListener('close', () => {
         dialog.innerHTML = '';
         enableScroll();
         setupNoScrollAndHover();
+        dialogSection.classList.add('hide');
     });
 
     let pokemonContainer = document.getElementById('pokemon-cards-container');
@@ -38,7 +41,6 @@
         return setteledResults.map(r => r.status === 'fulfilled' ? r.value : null);
     }
 
-    // Safe fetch helper: returns parsed JSON or null on error
     async function safeFetchJson(url) {
         try {
             const r = await fetch(url);
@@ -79,8 +81,8 @@
 
     async function loadGenerationOfPokemon(firstId, lastId) {
     const limit = lastId - firstId;
-    currentOffset = lastId;
-    console.log(currentOffset);
+    currentOffset = lastId - 40;
+    console.log(currentOffset, firstId, lastId);
     let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
     let data = await safeFetchJson(url);
     if (!data) return;
@@ -182,6 +184,17 @@
         });
         return abilitiesInfo;
     } 
+    
+let insertAbilitiesInfo = (abilities_info, condition) => {
+    if (!abilities_info || abilities_info.length === 0) return 'None';
+    else if (condition === "names_only") {
+        return abilities_info.map(ab => ab.name).join(', ');
+    } else if (condition === "with_effects") {
+        return abilities_info.map(ab => `<div><strong>${ab.name}</strong>: ${ab.effect}</div>`).join('');
+    } else {
+        return '';
+    }
+}
     
     let getSpeciesData = async (speciesUrl) => {
         let speciesData = null;
@@ -298,11 +311,11 @@ let openPokemonDialog = async (pokemonId) => {
     dialog.showModal();
     blockScroll();
     setupNoScrollAndHover();
+    dialogSection.classList.remove('hide');
 }
 
 
 let getEvolutionChain = async (speciesUrl) => {
-    // Try to reuse species/evolution chain cache
     let speciesData = null;
     if (pokemonSpeciesCache.has(speciesUrl)) {
         speciesData = pokemonSpeciesCache.get(speciesUrl);
@@ -330,17 +343,6 @@ let getEvolutionChain = async (speciesUrl) => {
     }
     console.log(evolutions);
     return evolutions;
-}
-
-let insertAbilitiesInfo = (abilities_info, condition) => {
-    if (!abilities_info || abilities_info.length === 0) return 'None';
-    else if (condition === "names_only") {
-        return abilities_info.map(ab => ab.name).join(', ');
-    } else if (condition === "with_effects") {
-        return abilities_info.map(ab => `<div><strong>${ab.name}</strong>: ${ab.effect}</div>`).join('');
-    } else {
-        return '';
-    }
 }
 
 let fillStatsBar = (pokemon) => {

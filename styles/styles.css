@@ -38,3 +38,7 @@ main {
     touch-action: none; 
     padding-right: 15px;
 }
+
+.hide {
+    display: none;
+}
