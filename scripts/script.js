@@ -6,6 +6,7 @@
     const pokemonSpeciesCache = new Map();
     const dialog = document.getElementById('dialogContent');
     const dialogSection = document.getElementById('dialog');
+    const loadMoreCardsButton = document.getElementById('loadMoreCards');
 
 
     dialog.addEventListener('close', () => {
@@ -55,14 +56,18 @@
     async function loadPokemon() {
     currentOffset = 0;
     console.log(currentOffset);
-    const data = await safeFetchJson('https://pokeapi.co/api/v2/pokemon?limit=40&offset=0');
-    if (!data) return;
+    const data = await safeFetchJson('https://pokeapi.co/api/v2/pokemon?limit=35&offset=0');
+    if (!data) {
+        console.error('Failed to load initial Pokemon data');
+        reloadbutton();
+        return;
+    };
     pokemonContainer.innerHTML = '';
     await renderAllPokemon(data.results);
     }
 
     async function loadMorePokemon() {
-    currentOffset += 40;
+    currentOffset += 35;
     console.log(currentOffset);
     let URL = `https://pokeapi.co/api/v2/pokemon?limit=40&offset=${currentOffset}`;
     let data = await safeFetchJson(URL);
@@ -82,7 +87,7 @@
 
     async function loadGenerationOfPokemon(firstId, lastId) {
     const limit = lastId - firstId;
-    currentOffset = lastId - 40;
+    currentOffset = lastId - 35;
     console.log(currentOffset, firstId, lastId);
     let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
     let data = await safeFetchJson(url);

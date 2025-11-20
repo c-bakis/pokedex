@@ -16,6 +16,15 @@ let renderPokemonCard = (pokemon) => {
     `;
 }
 
+    let reloadbutton = () => {
+        pokemonContainer.innerHTML = `<div class="reload-button-container">
+        <p class="reload-text">Beim Laden der Daten ist ein Fehler aufgetreten. 
+        Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es 
+        erneut.</p>
+        <button class="reload-button load-cards-btn" onclick="loadPokemon()">Neu laden</button>
+        </div>`;
+    }
+
 let pokemonDialog = (pokemon) => {
     return  `
         
