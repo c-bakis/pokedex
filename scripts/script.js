@@ -76,6 +76,7 @@
     let data = await safeFetchJson(URL);
     if (!data) return;
     pokemonContainer.innerHTML = '';
+    closeBurgerMenu();
     await renderAllPokemon(data.results);
     } 
 
@@ -248,6 +249,7 @@ let insertAbilitiesInfo = (abilities_info, condition) => {
     async function sortGeneration(numofGeneration) {
     pokemonList = [];
     pokemonContainer.innerHTML = '';
+    closeBurgerMenu();
     switch(numofGeneration) {
         case 1:
             loadGenerationOfPokemon(0, 151);
@@ -281,6 +283,10 @@ let insertAbilitiesInfo = (abilities_info, condition) => {
             loadPokemon(); 
             break;
     }
+}
+
+let closeBurgerMenu = () => {
+    document.getElementById("burger-toggle").checked = false;
 }
 
 let setupNoScrollAndHover = () => {
