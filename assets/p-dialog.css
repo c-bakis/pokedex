@@ -199,6 +199,10 @@ table tr td:nth-child(2) {
     width: 100%;
 }
 
+#ability {
+    overflow-y: scroll;
+}
+
 .abilities-info div {
     padding: 15px;
     margin-bottom: 10px;
