@@ -13,15 +13,15 @@
     <link rel="stylesheet" href="./assets/burger-menu.css">
     <title>Pokedex</title>
 </head>
-<body onload="loadPokemon()">
-    <header>
+<body id="body" onload="loadPokemon()">
+    <header id="header">
         <div class="header-logo">
             <img class="logo" src="./assets/img/pokeball.png" alt="pokeball logo">
         </div>
         <div class="header-title-and-searchfield">
-                   <h1>Welcome to the Pokedex</h1>
+                   <h1>Wilkommen zum Pokedex</h1>
             <div class="search-field">
-                <input type="text" placeholder="Search your Pokemon">
+                <input type="text" placeholder="Suche dein Pokemon">
                 <button class="search-btn btn"><img src="" alt=""></button>
             </div> 
         </div>
@@ -59,7 +59,7 @@
 
             </div>
             <div class="load-cards">
-                <button onclick="loadMorePokemon()" id="loadMoreCards" class="load-cards-btn btn">Load more cards</button>
+                <button onclick="loadMorePokemon()" id="loadMoreCards" class="load-cards-btn btn">Mehr Pokemon laden</button>
             </div>
         </section>
 

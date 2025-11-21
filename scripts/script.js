@@ -295,17 +295,19 @@ let closeBurgerMenu = () => {
 }
 
 let setupNoScrollAndHover = () => {
-    document.getElementById("main").classList.toggle('no-scroll');
+    document.getElementById("body").classList.toggle('no-scroll');
+    document.getElementById("header").classList.toggle('no-scroll');
     let pokemonCards = document.querySelectorAll('.pokemon-card');
     pokemonCards.forEach(card => (card.classList.toggle('hover')));
 }
 
 let scrollOffset;
-const scrollElement = document.getElementById("main");
+const scrollElement = document.getElementById("body");
 
 let blockScroll = () => {
     scrollOffset = window.pageYOffset;
-    scrollElement.style.top = `-${scrollOffset}px`;
+    offsetMinusHeader = scrollOffset - document.getElementById("header").offsetHeight;
+    scrollElement.style.top = `-${offsetMinusHeader}px`;
 }
 let enableScroll = () => {
     scrollElement.style.removeProperty('top');
