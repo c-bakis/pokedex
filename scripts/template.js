@@ -1,45 +1,57 @@
-
 let renderPokemonCard = (pokemon) => {
-    return `
-                 <div class="pokemon-card hover type-${pokemon.class}" id="pokemon-${pokemon.id}" 
-                        onclick="openPokemonDialog(${pokemon.id})" role="button" tabindex="0">
+  return `
+                 <div class="pokemon-card hover type-${
+                   pokemon.class
+                 }" id="pokemon-${pokemon.id}" 
+                        onclick="openPokemonDialog(${
+                          pokemon.id
+                        })" role="button" tabindex="0">
                     <div class="pokemon-name-number">
                         <h3>
                             <span class="pokemon-number">#${pokemon.id}</span>
                             <span class="pokemon-name">${pokemon.name}</span>
                         </h3>
                     </div>
-                    <img src="${pokemon.image}" alt="${pokemon.name} image" class="pokemon-image img-${pokemon.class}" 
+                    <img src="${pokemon.image}" alt="${
+    pokemon.name
+  } image" class="pokemon-image img-${pokemon.class}" 
                             width="140" height="140" loading="lazy">
-                    <div class="pokemon-types">${insertTypes(pokemon.types)}</div>
+                    <div class="pokemon-types">${insertTypes(
+                      pokemon.types
+                    )}</div>
                  </div>
     `;
-}
+};
 
-    let reloadbutton = () => {
-        pokemonContainer.innerHTML = `<div class="reload-button-container">
+let reloadbutton = () => {
+  pokemonContainer.innerHTML = `<div class="reload-button-container">
         <p class="reload-text">Beim Laden der Daten ist ein Fehler aufgetreten. 
         Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es 
         erneut.</p>
         <button class="reload-button load-cards-btn" onclick="loadPokemon()">Neu laden</button>
         </div>`;
-    }
+};
 
 let pokemonDialog = (pokemon) => {
-    return  `
-        
+  return `
 
         <div class="inner-dialog">
            <div class="dialog-header type-${pokemon.class}">
             <h2>${pokemon.name} <span class="pokemon-number">#${pokemon.id}</span></h2>
-            <button class="close-btn type-${pokemon.class}" onclick="closePokemonDialog()">&#10005;</button>
+            <button class="close-btn type-${
+              pokemon.class
+            }" onclick="closePokemonDialog()">&#10005;</button>
         </div>
         <div class="dialog-body-content">
             <div class="left-inner-dialog">  
                 <div class="dialog-body">
-                    <img src="${pokemon.image}" alt="${pokemon.name} image" class="dialog-pokemon-image 
+                    <img src="${pokemon.image}" alt="${
+    pokemon.name
+  } image" class="dialog-pokemon-image 
                             img-${pokemon.class}" loading="lazy">
-                    <div class="dialog-pokemon-types">${insertTypes(pokemon.types)}</div>
+                    <div class="dialog-pokemon-types">${insertTypes(
+                      pokemon.types
+                    )}</div>
                 </div>
             </div>
                 
@@ -55,12 +67,17 @@ let pokemonDialog = (pokemon) => {
                     <div id="about" class="dialog-tab-pane active">
                         <div class="height-and-weight">
                             <p><strong>Größe:</strong> ${pokemon.height} m</p>
-                            <p><strong>Gewicht:</strong> ${pokemon.weight} kg</p>
+                            <p><strong>Gewicht:</strong> ${
+                              pokemon.weight
+                            } kg</p>
                         </div>  
                             <p class="description"><strong>Beschreibung: </strong></p>
                             <p>${pokemon.description}</p>
                             <p class="abilities"><strong>Fähigkeiten:</strong></p>
-                            <p>${insertAbilitiesInfo(pokemon.abilities_info, "names_only")}</p>
+                            <p>${insertAbilitiesInfo(
+                              pokemon.abilities_info,
+                              "names_only"
+                            )}</p>
                     </div>
         
          <div id="ability" class="dialog-tab-pane">
@@ -106,20 +123,21 @@ let pokemonDialog = (pokemon) => {
                 </tbody>
             </table>
         </div>
-                </div>
-            </div>
+         <div id="evolution" class="dialog-tab-pane">
+            ${pokemon.evolution}
         </div>
         </div>
-
+        </div>
+        </div>
          
     `;
-}
+};
 
 // let Tab = (pokemon) => {
 //     return `
-       
+
 //     `;
 // }
-                        // <div class="pokemon-description">
-                        //     <p>${pokemon.description}</p>
-                        // </div>
+// <div class="pokemon-description">
+//     <p>${pokemon.description}</p>
+// </div>
