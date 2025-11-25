@@ -1,8 +1,9 @@
 
 .loading-screen {
-    position: absolute;
-    top: 0;
-    display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: none; /* hidden by default, shown via JS when needed */
     align-items: center;
     justify-content: center;
     width: 100%;

@@ -4,6 +4,20 @@ const pokemonCache = new Map();
 const pokemonRawCache = new Map();
 // Cache species responses to avoid re-fetching species endpoints
 const pokemonSpeciesCache = new Map();
+// Spinner state and helpers (reference-counted to support parallel requests)
+const _spinnerState = { count: 0 };
+function spinnerShow() {
+  _spinnerState.count++;
+  const el = document.getElementById('loading-screen');
+  if (el) el.style.display = 'flex';
+}
+function spinnerHide() {
+  _spinnerState.count = Math.max(0, _spinnerState.count - 1);
+  if (_spinnerState.count === 0) {
+    const el = document.getElementById('loading-screen');
+    if (el) el.style.display = 'none';
+  }
+}
 const dialog = document.getElementById("dialogContent");
 const dialogSection = document.getElementById("dialog");
 const loadMoreCardsButton = document.getElementById("loadMoreCards");
@@ -55,48 +69,68 @@ async function safeFetchJson(url) {
 }
 
 async function loadPokemon() {
-  currentOffset = 0;
-  console.log(currentOffset);
-  const data = await safeFetchJson(
-    "https://pokeapi.co/api/v2/pokemon?limit=35&offset=0"
-  );
-  if (!data) {
-    console.error("Failed to load initial Pokemon data");
-    reloadbutton();
-    return;
+  spinnerShow();
+  try {
+    currentOffset = 0;
+    console.log(currentOffset);
+    const data = await safeFetchJson(
+      "https://pokeapi.co/api/v2/pokemon?limit=35&offset=0"
+    );
+    if (!data) {
+      console.error("Failed to load initial Pokemon data");
+      reloadbutton();
+      return;
+    }
+    pokemonContainer.innerHTML = "";
+    await renderAllPokemon(data.results);
+  } finally {
+    spinnerHide();
   }
-  pokemonContainer.innerHTML = "";
-  await renderAllPokemon(data.results);
 }
 
 async function loadMorePokemon() {
-  currentOffset += 35;
-  console.log(currentOffset);
-  let URL = `https://pokeapi.co/api/v2/pokemon?limit=40&offset=${currentOffset}`;
-  let data = await safeFetchJson(URL);
-  if (!data) return;
-  console.log(URL);
-  await renderAllPokemon(data.results);
+  spinnerShow();
+  try {
+    currentOffset += 35;
+    console.log(currentOffset);
+    let URL = `https://pokeapi.co/api/v2/pokemon?limit=40&offset=${currentOffset}`;
+    let data = await safeFetchJson(URL);
+    if (!data) return;
+    console.log(URL);
+    await renderAllPokemon(data.results);
+  } finally {
+    spinnerHide();
+  }
 }
 
 async function loadAllPokemon() {
-  let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0`;
-  let data = await safeFetchJson(URL);
-  if (!data) return;
-  pokemonContainer.innerHTML = "";
-  closeBurgerMenu();
-  await renderAllPokemon(data.results);
+  spinnerShow();
+  try {
+    let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0`;
+    let data = await safeFetchJson(URL);
+    if (!data) return;
+    pokemonContainer.innerHTML = "";
+    closeBurgerMenu();
+    await renderAllPokemon(data.results);
+  } finally {
+    spinnerHide();
+  }
 }
 
 async function loadGenerationOfPokemon(firstId, lastId) {
-  const limit = lastId - firstId;
-  currentOffset = lastId - 35;
-  console.log(currentOffset, firstId, lastId);
-  let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
-  let data = await safeFetchJson(url);
-  if (!data) return;
-  pokemonContainer.innerHTML = "";
-  await renderAllPokemon(data.results);
+  spinnerShow();
+  try {
+    const limit = lastId - firstId;
+    currentOffset = lastId - 35;
+    console.log(currentOffset, firstId, lastId);
+    let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
+    let data = await safeFetchJson(url);
+    if (!data) return;
+    pokemonContainer.innerHTML = "";
+    await renderAllPokemon(data.results);
+  } finally {
+    spinnerHide();
+  }
 }
 
 async function loadPokemonDetails(pokemon) {
@@ -121,47 +155,52 @@ async function loadPokemonDetails(pokemon) {
 }
 
 let fetchPokemonDetails = async (id) => {
-  let data = pokemonRawCache.has(id) ? pokemonRawCache.get(id) : null;
-  let base = await getBaseData(id, data);
-  if (!pokemonCache.has(id)) {
-    const germanName = (await findGermanName(base.id)) || base.name;
-    const summary = {
-      id: base.id,
-      name: germanName,
-      image: base.image,
-      types: base.types,
-      class: base.class,
-    };
-    pokemonCache.set(id, summary);
-  }
-  const abilities_info = await getAbilityData(data.abilities);
-  const speciesUrl = data.species && data.species.url;
-  const speciesData = await getSpeciesData(speciesUrl);
-  const description =
-    speciesData && speciesData.flavor_text_entries
-      ? (
-          speciesData.flavor_text_entries.find(
-            (entry) => entry.language.name === "de"
-          ) || { flavor_text: "Keine Beschreibung verfügbar" }
-        ).flavor_text.replace(/\f/g, " ")
-      : "Keine Beschreibung verfügbar";
+  spinnerShow();
+  try {
+    let data = pokemonRawCache.has(id) ? pokemonRawCache.get(id) : null;
+    let base = await getBaseData(id, data);
+    if (!pokemonCache.has(id)) {
+      const germanName = (await findGermanName(base.id)) || base.name;
+      const summary = {
+        id: base.id,
+        name: germanName,
+        image: base.image,
+        types: base.types,
+        class: base.class,
+      };
+      pokemonCache.set(id, summary);
+    }
+    const abilities_info = await getAbilityData(data.abilities);
+    const speciesUrl = data.species && data.species.url;
+    const speciesData = await getSpeciesData(speciesUrl);
+    const description =
+      speciesData && speciesData.flavor_text_entries
+        ? (
+            speciesData.flavor_text_entries.find(
+              (entry) => entry.language.name === "de"
+            ) || { flavor_text: "Keine Beschreibung verfügbar" }
+          ).flavor_text.replace(/\f/g, " ")
+        : "Keine Beschreibung verfügbar";
 
-  const pokemonData = {
-    ...base,
-    abilities_info,
-    description,
-    height: data.height / 10,
-    weight: data.weight / 10,
-    stats: data.stats.map((stat) => ({
-      name: stat.stat.name,
-      value: stat.base_stat,
-    })),
-    locationAreaEncounters: data.location_area_encounters,
-    evolution: speciesData ? await getEvolutionChain(speciesUrl) : [],
-  };
-  await indexExist(pokemonData);
-  console.log(pokemonData);
-  return pokemonData;
+    const pokemonData = {
+      ...base,
+      abilities_info,
+      description,
+      height: data.height / 10,
+      weight: data.weight / 10,
+      stats: data.stats.map((stat) => ({
+        name: stat.stat.name,
+        value: stat.base_stat,
+      })),
+      locationAreaEncounters: data.location_area_encounters,
+      evolution: speciesData ? await getEvolutionChain(speciesUrl) : [],
+    };
+    await indexExist(pokemonData);
+    console.log(pokemonData);
+    return pokemonData;
+  } finally {
+    spinnerHide();
+  }
 };
 
 let getBaseData = async (id, data) => {
@@ -307,6 +346,8 @@ let renderAllPokemon = async (pokemons) => {
     .join("");
   pokemonContainer.innerHTML = html;
 };
+
+// previous loadingSpinner removed; use spinnerShow()/spinnerHide() instead
 
 async function sortGeneration(numofGeneration) {
   pokemonList = [];

@@ -21,6 +21,7 @@
     --ghost-type-color: #705898;
     --dragon-type-color: #461da5;
     --steel-type-color: #76a2ad;
+    --flying-type-color: #69b1ce;
 
     --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --font-size-small: 14px;
@@ -84,6 +85,8 @@
 .type-steel {
     background-color: var(--steel-type-color);
 }
-
+.type-flying {
+    background-color: var(--flying-type-color);
+}
 
 
