@@ -2,32 +2,34 @@
 <br/>
 
 # Pokedex
-\
-\
-This is one of the projects I am creating as part of my advanced training at the Developer Akademie. Especially for my son I decided to write this Pokedex in the german language.
+
 <br>
+<p align="center">This is one of the projects I am creating as part of my advanced training at the Developer Akademie. 
+I use the PokeAPI to fetch data and use it in this project.
+Especially for my son I decided to write this Pokedex in the german language.</p>
+
 <br>
 <br clear="left"/>
 
 ## Features
 
-
-  
-<img align="left" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/main_page.png" alt="pokedex" width="700"/>
 <br/>
+
 <p align="center">Get information for all Pokemon.</p>
 
-<p align="center">Click on a Pokemon to see a detailed view,</p>
-<p> search for Pokemon or sort them by generation</p>
+<p align="center">Click on a Pokemon to see a detailed view, search for Pokemon or sort them by generation</p>
+
+<br/>
+  
+<img align="left" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/main_page.png" alt="pokedex"/>
+<br/>
 <br clear="left">
 
 <br/>
-<br/>
-<br/>
 
-<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/menu.png" alt="menu" width="700"/>
+<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/menu.png" alt="menu"/>
 
-<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/dialog.png" alt="detailed view of pokemon" width="700"/>
+<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/dialog.png" alt="detailed view of pokemon"/>
 
 <p></p>
 <p></p>
