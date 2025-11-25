@@ -115,3 +115,7 @@ You are welcome to contribute to my project by creating an issure or making a pu
 ## Author 
 
 my Profile [ch-bakis](https://github.com/c-bakis)
+
+## License
+
+MIT License
