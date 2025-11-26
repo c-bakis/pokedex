@@ -124,7 +124,7 @@ let pokemonDialog = (pokemon) => {
             </table>
         </div>
          <div id="evolution" class="dialog-tab-pane">
-            ${pokemon.evolution}
+            ${insertEvolutions(pokemon.evolutions)}
         </div>
         </div>
         </div>
@@ -133,11 +133,16 @@ let pokemonDialog = (pokemon) => {
     `;
 };
 
-// let Tab = (pokemon) => {
-//     return `
+let templateEvolutions = (ev) => {
+    return `
+                <div class="pokemon-evolutions">
+                 <p>${ev.name}</p>
+                 <p>${ev.id}</p>
+             </div>
+             <div class="pokemon-evolutions">
+                <img href="${ev.sprite}" class="evolution-sprite" 
+                    alt="${ev.name} image">
+             </div>
+    `;
+}
 
-//     `;
-// }
-// <div class="pokemon-description">
-//     <p>${pokemon.description}</p>
-// </div>

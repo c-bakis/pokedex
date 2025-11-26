@@ -1,10 +1,8 @@
 
 const pokemonCache = new Map();
-// Cache raw pokemon API responses keyed by numeric id to avoid re-fetching
 const pokemonRawCache = new Map();
-// Cache species responses to avoid re-fetching species endpoints
 const pokemonSpeciesCache = new Map();
-// Spinner state and helpers (reference-counted to support parallel requests)
+const pokemonEvolutionCache = new Map();
 const _spinnerState = { count: 0 };
 function spinnerShow() {
   _spinnerState.count++;
@@ -42,10 +40,8 @@ async function asyncPool(items, asyncFn) {
     const p = Promise.resolve().then(() => asyncFn(item));
     results.push(p);
     executing.add(p);
-    // When the promise settles, remove it from the executing set
     const clean = () => executing.delete(p);
     p.then(clean).catch(clean);
-    console.log(executing.size);
 
     if (executing.size >= maxConcurrency) {
       await Promise.race(executing);
@@ -72,7 +68,6 @@ async function loadPokemon() {
   spinnerShow();
   try {
     currentOffset = 0;
-    console.log(currentOffset);
     const data = await safeFetchJson(
       "https://pokeapi.co/api/v2/pokemon?limit=35&offset=0"
     );
@@ -181,6 +176,7 @@ let fetchPokemonDetails = async (id) => {
             ) || { flavor_text: "Keine Beschreibung verfügbar" }
           ).flavor_text.replace(/\f/g, " ")
         : "Keine Beschreibung verfügbar";
+        const evolutions = await getEvolutionChain(speciesData.evolution_chain.url);
 
     const pokemonData = {
       ...base,
@@ -191,9 +187,8 @@ let fetchPokemonDetails = async (id) => {
       stats: data.stats.map((stat) => ({
         name: stat.stat.name,
         value: stat.base_stat,
+        evolutions
       })),
-      locationAreaEncounters: data.location_area_encounters,
-      evolution: speciesData ? await getEvolutionChain(speciesUrl) : [],
     };
     await indexExist(pokemonData);
     console.log(pokemonData);
@@ -313,7 +308,7 @@ let findTypes = (data) => {
     (id) =>
       `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/${id}.png`
   );
-};
+}
 
 let insertTypes = (types) => {
   return types
@@ -322,7 +317,71 @@ let insertTypes = (types) => {
         `<img src="${typeUrl}" class="pokemon-type-image" width="80" height="30" loading="lazy" alt="type icon">`
     )
     .join("");
+}
+
+let getEvolutionChain = async (evoUrl) => {
+  let evolutionChainData = await getEvolutionData(evoUrl);
+    if (!evolutionChainData || !evolutionChainData.chain) return [];
+
+  const evolutions = [];
+  let currentStage = evolutionChainData.chain;
+  while (currentStage) {
+    const speciesEntry = currentStage.species || {};
+    const speciesEntryUrl = speciesEntry.url || null;
+    let id = extractId(speciesEntryUrl);
+    let url = await getUrlsById(id);
+    evolutions.push(id, url);
+    currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
+      ? currentStage.evolves_to[0]
+      : null;
+  }
+  console.log(evolutions);
+  evolutions.forEach((evo) => {
+    let pokemon = loadPokemonDetails(evo);
+    return pokemon
+  });
+}
+
+let getUrlsById = async (id) => {
+    let url = `https://pokeapi.co/api/v2/pokemon/${id}/`
+    return url;
+}
+
+let insertEvolutions = (evolution) => {
+  if (!evolution || evolution.length === 0) return "None";
+   else if (evolution || evolution.length !== 0) {
+    return evolution.map((ev) => templateEvolution(ev));
+  } else {
+    return "";
+  }
 };
+
+let getEvolutionData = async (evoUrl) => {
+    let evolutionChainData = null;
+  try {
+    if (pokemonSpeciesCache.has(evoUrl)) {
+      evolutionChainData = pokemonSpeciesCache.get(evoUrl);
+    } else {
+      evolutionChainData = await safeFetchJson(evoUrl);
+      if (evolutionChainData) pokemonSpeciesCache.set(evoUrl, evolutionChainData);
+    }
+    return evolutionChainData;
+  } catch (err) {
+    console.error('getEvolutionChain: failed fetching evolution chain:', err, evoUrl);
+    return [];
+  }
+}
+
+let extractId = (speciesEntryUrl) => {
+    let id = null;
+    if (speciesEntryUrl) {
+      const parts = speciesEntryUrl.split('/').filter(Boolean);
+      const last = parts[parts.length - 1];
+      const parsed = Number(last);
+      if (!Number.isNaN(parsed)) id = parsed;
+    }
+    return id;
+}
 
 let sortPokemonList = () => {
   pokemonList.sort((a, b) => a.id - b.id);
@@ -333,7 +392,6 @@ let renderAllPokemon = async (pokemons) => {
   const results = await asyncPool(pokemons, (pokemon) =>
     loadPokemonDetails(pokemon)
   );
-  console.log(results);
   const validResults = results.filter((r) => r !== null);
   const newItems = validResults.filter(
     (r) => !pokemonList.some((p) => p.id === r.id)
@@ -424,38 +482,6 @@ let openPokemonDialog = async (pokemonId) => {
   blockScroll();
   setupNoScrollAndHover();
   dialogSection.classList.remove("hide");
-};
-
-let getEvolutionChain = async (speciesUrl) => {
-  let speciesData = null;
-  if (pokemonSpeciesCache.has(speciesUrl)) {
-    speciesData = pokemonSpeciesCache.get(speciesUrl);
-  } else {
-    speciesData = await safeFetchJson(speciesUrl);
-    if (speciesData) pokemonSpeciesCache.set(speciesUrl, speciesData);
-  }
-  if (!speciesData || !speciesData.evolution_chain) return [];
-
-  const evoUrl = speciesData.evolution_chain.url;
-  let evolutionChainData = null;
-  if (pokemonSpeciesCache.has(evoUrl)) {
-    evolutionChainData = pokemonSpeciesCache.get(evoUrl);
-  } else {
-    evolutionChainData = await safeFetchJson(evoUrl);
-  console.log(evolutionChainData);
-    if (evolutionChainData) pokemonSpeciesCache.set(evoUrl, evolutionChainData);
-  }
-  if (!evolutionChainData) return [];
-  const evolutions = [];
-  let currentStage = evolutionChainData.chain;
-  while (currentStage) {
-    evolutions.push(currentStage.species.name);
-    currentStage =
-      currentStage.evolves_to && currentStage.evolves_to.length > 0
-        ? currentStage.evolves_to[0]
-        : null;
-  }
-  return evolutions;
 };
 
 let fillStatsBar = (pokemon) => {
