@@ -136,11 +136,11 @@ let pokemonDialog = (pokemon) => {
 let templateEvolutions = (ev) => {
     return `
                 <div class="pokemon-evolutions">
-                 <p>${ev.name}</p>
-                 <p>${ev.id}</p>
+                 <p>${ev.name} </p>
+                 <p> # ${ev.id}</p>
              </div>
              <div class="pokemon-evolutions">
-                <img href="${ev.image}" class="evolution-sprite" 
+                <img src="${ev.image}" class="evolution-sprite" 
                     alt="${ev.name} image">
              </div>
     `;

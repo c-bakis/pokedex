@@ -322,15 +322,27 @@ let insertTypes = (types) => {
 let getEvolutionChain = async (evoUrl) => {
   let evolutionChainData = await getEvolutionData(evoUrl);
     if (!evolutionChainData || !evolutionChainData.chain) return [];
-
   const evolutions = [];
   let currentStage = evolutionChainData.chain;
+  let i = 0;
+  // working on do while loop for exceptione with more than one evolution like eevee
+  // do {
+  //   let numOfEvolutions = currentStage.evolves_to.length;
+
+  // }
+  console.log(currentStage);
   while (currentStage) {
     const speciesEntry = currentStage.species || {};
     const speciesEntryUrl = speciesEntry.url || null;
     let id = extractId(speciesEntryUrl);
     let url = await getUrlsById(id);
     evolutions.push(url);
+    i++;
+    if (l >= 2) {
+      console.log(i);
+
+    }      
+    console.log(l)    
     currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
       ? currentStage.evolves_to[0]
       : null;
@@ -379,7 +391,7 @@ let extractId = (speciesEntryUrl) => {
 let insertEvolutions = (evolution) => {
   if (!evolution || evolution.length === 0) return "None";
    else if (evolution || evolution.length !== 0) {
-    return evolution.map((ev) => templateEvolutions(ev));
+    return evolution.map((ev) => templateEvolutions(ev)).join("");
   } else {
     return "";
   }
