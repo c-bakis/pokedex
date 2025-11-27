@@ -182,12 +182,12 @@ let fetchPokemonDetails = async (id) => {
       ...base,
       abilities_info,
       description,
+      evolutions,
       height: data.height / 10,
       weight: data.weight / 10,
       stats: data.stats.map((stat) => ({
         name: stat.stat.name,
         value: stat.base_stat,
-        evolutions
       })),
     };
     await indexExist(pokemonData);
@@ -330,31 +330,24 @@ let getEvolutionChain = async (evoUrl) => {
     const speciesEntryUrl = speciesEntry.url || null;
     let id = extractId(speciesEntryUrl);
     let url = await getUrlsById(id);
-    evolutions.push(id, url);
+    evolutions.push(url);
     currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
       ? currentStage.evolves_to[0]
       : null;
   }
-  console.log(evolutions);
-  evolutions.forEach((evo) => {
-    let pokemon = loadPokemonDetails(evo);
-    return pokemon
-  });
-}
+  const evolutionChain = await asyncPool(evolutions, (evolution) =>
+    loadPokemonDetails(evolution)
+  );
+    console.log(evolutionChain);
+    return evolutionChain
+  }
 
 let getUrlsById = async (id) => {
-    let url = `https://pokeapi.co/api/v2/pokemon/${id}/`
-    return url;
+    let item = {
+      url: `https://pokeapi.co/api/v2/pokemon/${id}/`
+    }
+    return item;
 }
-
-let insertEvolutions = (evolution) => {
-  if (!evolution || evolution.length === 0) return "None";
-   else if (evolution || evolution.length !== 0) {
-    return evolution.map((ev) => templateEvolution(ev));
-  } else {
-    return "";
-  }
-};
 
 let getEvolutionData = async (evoUrl) => {
     let evolutionChainData = null;
@@ -383,10 +376,19 @@ let extractId = (speciesEntryUrl) => {
     return id;
 }
 
+let insertEvolutions = (evolution) => {
+  if (!evolution || evolution.length === 0) return "None";
+   else if (evolution || evolution.length !== 0) {
+    return evolution.map((ev) => templateEvolutions(ev));
+  } else {
+    return "";
+  }
+}
+
 let sortPokemonList = () => {
   pokemonList.sort((a, b) => a.id - b.id);
   return pokemonList;
-};
+}
 
 let renderAllPokemon = async (pokemons) => {
   const results = await asyncPool(pokemons, (pokemon) =>
@@ -404,8 +406,6 @@ let renderAllPokemon = async (pokemons) => {
     .join("");
   pokemonContainer.innerHTML = html;
 };
-
-// previous loadingSpinner removed; use spinnerShow()/spinnerHide() instead
 
 async function sortGeneration(numofGeneration) {
   pokemonList = [];

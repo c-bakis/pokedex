@@ -140,7 +140,7 @@ let templateEvolutions = (ev) => {
                  <p>${ev.id}</p>
              </div>
              <div class="pokemon-evolutions">
-                <img href="${ev.sprite}" class="evolution-sprite" 
+                <img href="${ev.image}" class="evolution-sprite" 
                     alt="${ev.name} image">
              </div>
     `;
