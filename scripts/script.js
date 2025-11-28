@@ -338,11 +338,11 @@ let getEvolutionChain = async (evoUrl) => {
     let url = await getUrlsById(id);
     evolutions.push(url);
     i++;
-    if (l >= 2) {
-      console.log(i);
+    // if (l >= 2) {
+    //   console.log(i);
 
-    }      
-    console.log(l)    
+    // }      
+    // console.log(l)    
     currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
       ? currentStage.evolves_to[0]
       : null;

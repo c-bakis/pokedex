@@ -221,3 +221,47 @@ table tr td:nth-child(2) {
     width: 120px;
     height: 120px;
 }
+
+.previous-and-next-btn {
+    position: absolute;
+    top: 50%;
+}
+.previous {
+    left: 5%;
+}
+.next {
+    right: 5%;
+}
+
+
+@media (max-width: 1348px) {
+
+    .inner-dialog{
+        max-width: 86%;
+    }
+    .previous {
+        left: 5px;
+    }
+    .next {
+        right: 5px;
+    }
+}
+
+@media (max-width: 960px) {
+    .dialog-body-content  {
+        flex-direction: column;
+    }
+    .inner-dialog, .dialog-content {
+        height: 100%;
+    }
+     .dialog-header {
+        position: relative;
+        top: -20px;
+     }
+    .previous {
+        left: 0px;
+    }
+    .next {
+        right: 0px;
+    }
+}

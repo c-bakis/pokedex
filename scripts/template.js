@@ -34,7 +34,12 @@ let reloadbutton = () => {
 
 let pokemonDialog = (pokemon) => {
   return `
-
+            <div class="previous-and-next-btn previous">
+                <button class="type-${pokemon.class}" id="previous"> < </button>
+            </div>
+            <div class="previous-and-next-btn next">
+                <button class="type-${pokemon.class}" id="next"> > </button>
+            </div>
         <div class="inner-dialog">
            <div class="dialog-header type-${pokemon.class}">
             <h2>${pokemon.name} <span class="pokemon-number">#${pokemon.id}</span></h2>
@@ -43,6 +48,7 @@ let pokemonDialog = (pokemon) => {
             }" onclick="closePokemonDialog()">&#10005;</button>
         </div>
         <div class="dialog-body-content">
+
             <div class="left-inner-dialog">  
                 <div class="dialog-body">
                     <img src="${pokemon.image}" alt="${

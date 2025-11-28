@@ -15,7 +15,7 @@
     border: none;
 }
 
-.close-btn:hover {
+.close-btn:hover, #previous:hover, #next:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
     background-blend-mode: overlay;
 }
@@ -38,4 +38,14 @@ button:active, a:active {
 
 .close-btn, .load-cards-btn, .pokemon-card, a, .sort-bt {
     border-radius: var(--border-radius);
+}
+
+#next, #previous {
+    font-size: var(--font-size-xlarge);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    text-shadow: var(--text-shadow);
+    box-shadow: 2px 2px 20px 8px var(--second-bg-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
 }
