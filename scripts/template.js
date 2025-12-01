@@ -35,10 +35,12 @@ let reloadbutton = () => {
 let pokemonDialog = (pokemon) => {
   return `
             <div class="previous-and-next-btn previous">
-                <button class="type-${pokemon.class}" id="previous"> < </button>
+                <button class="type-${pokemon.class}" id="previous" 
+                onclick="previousPokemon(${pokemon.id})"> < </button>
             </div>
             <div class="previous-and-next-btn next">
-                <button class="type-${pokemon.class}" id="next"> > </button>
+                <button class="type-${pokemon.class}" id="next" 
+                onclick="nextPokemon(${pokemon.id})"> > </button>
             </div>
         <div class="inner-dialog">
            <div class="dialog-header type-${pokemon.class}">

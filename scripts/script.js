@@ -544,3 +544,30 @@ let openTab = (evt, tabName) => {
     evt.currentTarget.className += " active";
   }
 };
+
+let nextPokemon = (id) => {
+  console.log(id)
+  console.log(pokemonList[0].id)
+  let newId = 0;
+  if (id < pokemonList.length) {
+      newId = id + 1;  }
+  else {
+    newId = pokemonList[0].id;
+  }
+  closePokemonDialog();
+  openPokemonDialog(newId);
+
+}
+let previousPokemon = (id) => {
+  console.log(id)
+  console.log(pokemonList.length)
+  let newId = 0;
+  if (id > 1) {
+      newId = id - 1;  }
+  else {
+    newId = pokemonList.length;
+  }
+  closePokemonDialog();
+  openPokemonDialog(newId);
+
+}
