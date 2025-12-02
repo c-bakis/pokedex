@@ -53,10 +53,9 @@ let pokemonDialog = (pokemon) => {
 
             <div class="left-inner-dialog">  
                 <div class="dialog-body">
-                    <img src="${pokemon.image}" alt="${
-    pokemon.name
-  } image" class="dialog-pokemon-image 
-                            img-${pokemon.class}" loading="lazy">
+                    <img src="${pokemon.image}" alt="${pokemon.name} 
+                        image" class="dialog-pokemon-image 
+                        img-${pokemon.class}" loading="lazy">
                     <div class="dialog-pokemon-types">${insertTypes(
                       pokemon.types
                     )}</div>
@@ -69,10 +68,9 @@ let pokemonDialog = (pokemon) => {
                     <button class="dialog-tab-button" onclick="openTab(event, 'ability')">Fähigkeiten</button>
                     <button class="dialog-tab-button" onclick="openTab(event, 'stats')">Basis Werte</button>
                     <button class="dialog-tab-button" onclick="openTab(event, 'evolution')">Entwicklung</button>
-                    <button class="dialog-tab-button" onclick="openTab(event, 'moves')">Attacken</button>
                 </div>
                 <div class="dialog-tab-content">
-                    <div id="about" class="dialog-tab-pane active">
+                    <div id="about" class="dialog-tab-pane info-tab active">
                         <div class="height-and-weight">
                             <p><strong>Größe:</strong> ${pokemon.height} m</p>
                             <p><strong>Gewicht:</strong> ${
@@ -88,50 +86,50 @@ let pokemonDialog = (pokemon) => {
                             )}</p>
                     </div>
         
-         <div id="ability" class="dialog-tab-pane">
+         <div id="ability" class="dialog-tab-pane abilities-tab">
             <div class="abilities-info">
                 ${insertAbilitiesInfo(pokemon.abilities_info, "with_effects")}
             </div>
 
         </div>
         
-         <div id="stats" class="dialog-tab-pane">
+         <div id="stats" class="dialog-tab-pane stats-tab">
             <table>
                 <tbody>
                     <tr>
-                        <td>HP</td>
+                        <td>KP</td>
                         <td>${pokemon.stats[0].value}</td>
                         <td class="stats-bar"><span class="stats-bar-fill"></span></td>
                     </tr>
                     <tr>
-                        <td>Attack</td>
+                        <td>Angriff</td>
                         <td>${pokemon.stats[1].value}</td>
                         <td class="stats-bar"><span class="stats-bar-fill"></td>
                     </tr>
                     <tr>
-                        <td>Defense</td>
+                        <td>Verteidigung</td>
                         <td>${pokemon.stats[2].value}</td>
                         <td class="stats-bar"><span class="stats-bar-fill"></td>
                     </tr>
                     <tr>
-                        <td>Spec.-Attack</td>
+                        <td>Spez.-Angriff</td>
                         <td>${pokemon.stats[3].value}</td>
                         <td class="stats-bar"><span class="stats-bar-fill"></td>
                     </tr>
                     <tr>
-                        <td>Spec.-Defense</td>
+                        <td>Spez.-Verteid.</td>
                         <td>${pokemon.stats[4].value}</td>
                         <td class="stats-bar"><span class="stats-bar-fill"></td>
                     </tr>
                     <tr>
-                        <td>Speed</td>
+                        <td>Geschwindigkeit</td>
                         <td>${pokemon.stats[5].value}</td>
                         <td class="stats-bar"><span class="stats-bar-fill"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-         <div id="evolution" class="dialog-tab-pane">
+         <div id="evolution" class="dialog-tab-pane evolution-tab">
             ${insertEvolutions(pokemon.evolutions)}
         </div>
         </div>
@@ -143,14 +141,16 @@ let pokemonDialog = (pokemon) => {
 
 let templateEvolutions = (ev) => {
     return `
-                <div class="pokemon-evolutions">
+        <div>
+                <div class="pokemon-evolutions evolution-name">
                  <p class="pokemon-name">${ev.name} </p>
                  <p> # ${ev.id}</p>
              </div>
-             <div class="pokemon-evolutions">
+             <div class="pokemon-evolutions evolution-image">
                 <img src="${ev.image}" class="evolution-sprite" 
                     alt="${ev.name} image">
              </div>
+        </div>
     `;
 }
 

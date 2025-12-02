@@ -495,7 +495,7 @@ let fillStatsBar = (pokemon) => {
   if (!pokemon || !pokemon.stats) return;
   pokemon.stats.forEach((stat, index) => {
     if (statsBars[index]) {
-      const percentage = (Math.min(stat.value, 255) / 255) * 100;
+      const percentage = (Math.min(stat.value, 250) / 250) * 100;
       statsBars[index].style.width = `${percentage}%`;
     }
   });
@@ -532,7 +532,7 @@ let openTab = (evt, tabName) => {
       tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
     }
   }
-  document.getElementById(tabName).style.display = "block";
+  document.getElementById(tabName).style.display = "flex";
   if (evt !== null) {
     console.log(evt.currentTarget);
     evt.currentTarget.className += " active";

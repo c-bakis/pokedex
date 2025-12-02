@@ -1,6 +1,7 @@
 header, footer {
     display: flex;
     align-items: center;
+    width: 100%;
     background-color: var(--second-bg-color);
     color: var(--text-color);
     height: 120px;

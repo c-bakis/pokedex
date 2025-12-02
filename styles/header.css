@@ -58,3 +58,33 @@ h1 {
     cursor: pointer;
 }
 
+@media (max-width: 712px) {
+    h1 {
+        font-size:var(--font-size-xlarge)
+    }
+    .search-field, .search-field input {
+        font-size: var(--font-size-small);
+    }
+}
+
+@media (max-width: 548px) {
+    h1 {
+        font-size:var(--font-size-large)
+    }
+    .logo {
+        width: 60px;
+        height: auto;
+    }
+    .menu {
+        width: 30px;
+    }
+}
+@media (max-width: 462px) {
+    h1 {
+        font-size:var(--font-size-normal)
+    }
+    .logo {
+        width: 45px;
+        height: auto;
+    }
+}
