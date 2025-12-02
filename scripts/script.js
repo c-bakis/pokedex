@@ -3,7 +3,11 @@ const pokemonCache = new Map();
 const pokemonRawCache = new Map();
 const pokemonSpeciesCache = new Map();
 const pokemonEvolutionCache = new Map();
+const dialog = document.getElementById("dialogContent");
+const dialogSection = document.getElementById("dialog");
+const loadMoreCardsButton = document.getElementById("loadMoreCards");
 const _spinnerState = { count: 0 };
+
 function spinnerShow() {
   _spinnerState.count++;
   const el = document.getElementById('loading-screen');
@@ -16,9 +20,6 @@ function spinnerHide() {
     if (el) el.style.display = 'none';
   }
 }
-const dialog = document.getElementById("dialogContent");
-const dialogSection = document.getElementById("dialog");
-const loadMoreCardsButton = document.getElementById("loadMoreCards");
 
 dialog.addEventListener("close", () => {
   dialog.innerHTML = "";
@@ -155,7 +156,7 @@ let fetchPokemonDetails = async (id) => {
     let data = pokemonRawCache.has(id) ? pokemonRawCache.get(id) : null;
     let base = await getBaseData(id, data);
     if (!pokemonCache.has(id)) {
-      const germanName = (await findGermanName(base.id)) || base.name;
+      const germanName = (await findGermanName(base.id)).toLowerCase() || base.name;
       const summary = {
         id: base.id,
         name: germanName,
@@ -176,7 +177,7 @@ let fetchPokemonDetails = async (id) => {
             ) || { flavor_text: "Keine Beschreibung verfügbar" }
           ).flavor_text.replace(/\f/g, " ")
         : "Keine Beschreibung verfügbar";
-        const evolutions = await getEvolutionChain(speciesData.evolution_chain.url);
+    const evolutions = await getEvolutionChain(speciesData.evolution_chain.url);
 
     const pokemonData = {
       ...base,
@@ -207,7 +208,7 @@ let getBaseData = async (id, data) => {
   }
   const base = {
     id: cachedSummary ? cachedSummary.id : data.id,
-    name: cachedSummary ? cachedSummary.name : data.name,
+    name: cachedSummary ? cachedSummary.name : data.name.toLowerCase(),
     image: cachedSummary
       ? cachedSummary.image
       : data.sprites.other.dream_world.front_default
@@ -232,14 +233,10 @@ let indexExist = async (pokemonData) => {
   const existingIndex = pokemonList.findIndex((p) => p.id === id);
   if (existingIndex !== -1) {
     pokemonList[existingIndex] = pokemonData;
-    console.log(
-      `indexExist: updated pokemon id=${id} at index ${existingIndex}`
-    );
-    return true; // existed
+    return true;
   } else {
     pokemonList.push(pokemonData);
-    console.log(`indexExist: added pokemon id=${id}`);
-    return false; // did not exist
+    return false;
   }
 };
 
@@ -293,7 +290,7 @@ let findGermanName = async (pokemonId) => {
     `https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`
   );
   if (!speciesData) return null;
-  const germanEntry = speciesData.names.find(
+  let germanEntry = speciesData.names.find(
     (nameEntry) => nameEntry.language.name === "de"
   );
   return germanEntry ? germanEntry.name : null;
@@ -338,11 +335,6 @@ let getEvolutionChain = async (evoUrl) => {
     let url = await getUrlsById(id);
     evolutions.push(url);
     i++;
-    // if (l >= 2) {
-    //   console.log(i);
-
-    // }      
-    // console.log(l)    
     currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
       ? currentStage.evolves_to[0]
       : null;
@@ -413,11 +405,13 @@ let renderAllPokemon = async (pokemons) => {
   pokemonList = pokemonList.concat(newItems);
 
   sortPokemonList();
-  const html = pokemonList
-    .map((pokemon) => renderPokemonCard(pokemon))
-    .join("");
+  renderCards(pokemonList);
+}
+
+let renderCards = (list) => {
+  const html = list.map((pokemon) => renderPokemonCard(pokemon)).join("");
   pokemonContainer.innerHTML = html;
-};
+}
 
 async function sortGeneration(numofGeneration) {
   pokemonList = [];
@@ -546,8 +540,7 @@ let openTab = (evt, tabName) => {
 };
 
 let nextPokemon = (id) => {
-  console.log(id)
-  console.log(pokemonList[0].id)
+  console.log(pokemonList)
   let newId = 0;
   if (id < pokemonList.length) {
       newId = id + 1;  }
@@ -556,11 +549,8 @@ let nextPokemon = (id) => {
   }
   closePokemonDialog();
   openPokemonDialog(newId);
-
 }
 let previousPokemon = (id) => {
-  console.log(id)
-  console.log(pokemonList.length)
   let newId = 0;
   if (id > 1) {
       newId = id - 1;  }
@@ -569,5 +559,23 @@ let previousPokemon = (id) => {
   }
   closePokemonDialog();
   openPokemonDialog(newId);
+}
 
+let searchPokemon = () => {
+  let inputField = document.getElementById('input');
+  let searchValue = inputField.value;
+  let capitalValue = searchValue.replace(/^\w/, (c) => c.toUpperCase());
+  let foundPokemon = pokemonList.filter((pokemon) => {
+    if (searchValue.length >= 3) {
+      console.log("searching...");
+      
+    return pokemon.name.includes(capitalValue);
+    } else {
+      return pokemonList;
+    }
+
+  });
+  console.log(foundPokemon); 
+  renderCards(foundPokemon);
+  inputField.value = "";
 }

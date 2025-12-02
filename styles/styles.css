@@ -32,6 +32,10 @@ main {
     justify-content: center;
 }
 
+.pokemon-name::first-letter {
+    text-transform: capitalize;
+}
+
 .reload-button-container {
     display: flex;
     flex-direction: column;

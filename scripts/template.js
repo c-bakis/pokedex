@@ -44,7 +44,7 @@ let pokemonDialog = (pokemon) => {
             </div>
         <div class="inner-dialog">
            <div class="dialog-header type-${pokemon.class}">
-            <h2>${pokemon.name} <span class="pokemon-number">#${pokemon.id}</span></h2>
+            <h2 class="pokemon-name">${pokemon.name} <span class="pokemon-number">#${pokemon.id}</span></h2>
             <button class="close-btn type-${
               pokemon.class
             }" onclick="closePokemonDialog()">&#10005;</button>
@@ -144,7 +144,7 @@ let pokemonDialog = (pokemon) => {
 let templateEvolutions = (ev) => {
     return `
                 <div class="pokemon-evolutions">
-                 <p>${ev.name} </p>
+                 <p class="pokemon-name">${ev.name} </p>
                  <p> # ${ev.id}</p>
              </div>
              <div class="pokemon-evolutions">
