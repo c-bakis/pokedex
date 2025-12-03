@@ -118,7 +118,6 @@ async function loadGenerationOfPokemon(firstId, lastId) {
   try {
     const limit = lastId - firstId;
     currentOffset = lastId - 35;
-    console.log(currentOffset, firstId, lastId);
     let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
     let data = await safeFetchJson(url);
     if (!data) return;
@@ -192,7 +191,6 @@ let fetchPokemonDetails = async (id) => {
       })),
     };
     await indexExist(pokemonData);
-    console.log(pokemonData);
     return pokemonData;
   } finally {
     spinnerHide();
@@ -327,7 +325,6 @@ let getEvolutionChain = async (evoUrl) => {
   //   let numOfEvolutions = currentStage.evolves_to.length;
 
   // }
-  console.log(currentStage);
   while (currentStage) {
     const speciesEntry = currentStage.species || {};
     const speciesEntryUrl = speciesEntry.url || null;
@@ -342,7 +339,6 @@ let getEvolutionChain = async (evoUrl) => {
   const evolutionChain = await asyncPool(evolutions, (evolution) =>
     loadPokemonDetails(evolution)
   );
-    console.log(evolutionChain);
     return evolutionChain
   }
 
@@ -475,7 +471,6 @@ let blockScroll = () => {
 let enableScroll = () => {
   scrollElement.style.removeProperty("top");
   setTimeout(() => window.scrollTo(0, scrollOffset), 0);
-  console.log(scrollOffset);
 };
 
 let openPokemonDialog = async (pokemonId) => {
@@ -503,7 +498,6 @@ let fillStatsBar = (pokemon) => {
 //
 let createDialog = (pokemon) => {
   if (!pokemon) return;
-  console.log(pokemon);
   dialog.innerHTML = "";
   dialog.innerHTML += pokemonDialog(pokemon);
 };
@@ -540,23 +534,22 @@ let openTab = (evt, tabName) => {
 };
 
 let nextPokemon = (id) => {
-  console.log(pokemonList)
-  let newId = 0;
-  if (id < pokemonList.length) {
-      newId = id + 1;  }
-  else {
-    newId = pokemonList[0].id;
-  }
+  let newId = id + 1;  
+  let lastIndex = pokemonList.length - 1;
+  let lastId = pokemonList[lastIndex].id;
+  if (newId >= lastId) {
+      newId = pokemonList[0].id;
+    }
   closePokemonDialog();
   openPokemonDialog(newId);
 }
 let previousPokemon = (id) => {
-  let newId = 0;
+  let newId = id - 1;
+  let lastIndex = pokemonList.length - 1;
+  let lastId = pokemonList[lastIndex].id;
   if (id > 1) {
-      newId = id - 1;  }
-  else {
-    newId = pokemonList.length;
-  }
+      newId = lastId;  
+    }
   closePokemonDialog();
   openPokemonDialog(newId);
 }
@@ -565,17 +558,19 @@ let searchPokemon = () => {
   let inputField = document.getElementById('input');
   let searchValue = inputField.value;
   let capitalValue = searchValue.replace(/^\w/, (c) => c.toUpperCase());
+  if (searchValue.length <= 2) {
+      alert("Bitte gib mindestens 3 Buchstaben ein, für eine erfolgreiche Suche.");
+  }
   let foundPokemon = pokemonList.filter((pokemon) => {
-    if (searchValue.length >= 3) {
-      console.log("searching...");
-      
+    if (searchValue.length >= 3 && pokemon.name.includes(capitalValue)) {
     return pokemon.name.includes(capitalValue);
-    } else {
-      return pokemonList;
     }
-
-  });
-  console.log(foundPokemon); 
+  });  
+  if (foundPokemon.length == 0) {
+    alert("Keine Übereinstimmung gefunden.");
+    foundPokemon = pokemonList;
+  }
+  console.log(foundPokemon)
   renderCards(foundPokemon);
   inputField.value = "";
 }
