@@ -2,11 +2,14 @@
 const pokemonCache = new Map();
 const pokemonRawCache = new Map();
 const pokemonSpeciesCache = new Map();
-const pokemonEvolutionCache = new Map();
 const dialog = document.getElementById("dialogContent");
 const dialogSection = document.getElementById("dialog");
 const loadMoreCardsButton = document.getElementById("loadMoreCards");
 const _spinnerState = { count: 0 };
+const pokemonContainer = document.getElementById("pokemon-cards-container");
+
+let pokemonList = [];
+let currentOffset = 0;
 
 function spinnerShow() {
   _spinnerState.count++;
@@ -27,10 +30,6 @@ dialog.addEventListener("close", () => {
   setupNoScrollAndHover();
   dialogSection.classList.add("hide");
 });
-
-let pokemonContainer = document.getElementById("pokemon-cards-container");
-let pokemonList = [];
-let currentOffset = 0;
 
 async function asyncPool(items, asyncFn) {
   const maxConcurrency = 12;
@@ -70,7 +69,7 @@ async function loadPokemon() {
   try {
     currentOffset = 0;
     const data = await safeFetchJson(
-      "https://pokeapi.co/api/v2/pokemon?limit=35&offset=0"
+      "https://pokeapi.co/api/v2/pokemon?limit=30&offset=0"
     );
     if (!data) {
       console.error("Failed to load initial Pokemon data");
@@ -87,12 +86,12 @@ async function loadPokemon() {
 async function loadMorePokemon() {
   spinnerShow();
   try {
-    currentOffset += 35;
+    currentOffset += 30;
     console.log(currentOffset);
-    let URL = `https://pokeapi.co/api/v2/pokemon?limit=40&offset=${currentOffset}`;
-    let data = await safeFetchJson(URL);
+    const URL = `https://pokeapi.co/api/v2/pokemon?limit=30&offset=${currentOffset}`;
+    const data = await safeFetchJson(URL);
     if (!data) return;
-    console.log(URL);
+    console.log(data.results);
     await renderAllPokemon(data.results);
   } finally {
     spinnerHide();
@@ -102,8 +101,8 @@ async function loadMorePokemon() {
 async function loadAllPokemon() {
   spinnerShow();
   try {
-    let URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0`;
-    let data = await safeFetchJson(URL);
+    const URL = `https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0`;
+    const data = await safeFetchJson(URL);
     if (!data) return;
     pokemonContainer.innerHTML = "";
     closeBurgerMenu();
@@ -118,8 +117,8 @@ async function loadGenerationOfPokemon(firstId, lastId) {
   try {
     const limit = lastId - firstId;
     currentOffset = lastId - 35;
-    let url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
-    let data = await safeFetchJson(url);
+    const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${firstId}`;
+    const data = await safeFetchJson(url);
     if (!data) return;
     pokemonContainer.innerHTML = "";
     await renderAllPokemon(data.results);
@@ -146,6 +145,8 @@ async function loadPokemonDetails(pokemon) {
   pokemonCache.set(pokemon.url, pokemonData);
   pokemonCache.set(data.id, pokemonData);
   pokemonRawCache.set(data.id, data);
+  console.log(pokemonCache);
+  console.log(pokemonRawCache);
   return pokemonData;
 }
 
@@ -153,9 +154,10 @@ let fetchPokemonDetails = async (id) => {
   spinnerShow();
   try {
     let data = pokemonRawCache.has(id) ? pokemonRawCache.get(id) : null;
+    console.log(data);
     let base = await getBaseData(id, data);
     if (!pokemonCache.has(id)) {
-      const germanName = (await findGermanName(base.id)).toLowerCase() || base.name;
+      const germanName = (await findGermanName(base.id)) || base.name;
       const summary = {
         id: base.id,
         name: germanName,
@@ -442,7 +444,6 @@ async function sortGeneration(numofGeneration) {
       loadGenerationOfPokemon(905, 1025);
       break;
     default:
-      console.log("Unknown generation");
       loadPokemon();
       break;
   }
