@@ -1,12 +1,16 @@
 
 const pokemonCache = new Map();
 const pokemonSpeciesCache = new Map();
+const evolutionCache = new Map();
+const abilityCache = new Map();
 const dialog = document.getElementById("dialogContent");
 const dialogSection = document.getElementById("dialog");
 const loadMoreCardsButton = document.getElementById("loadMoreCards");
 const _spinnerState = { count: 0 };
 const pokemonContainer = document.getElementById("pokemon-cards-container");
+const scrollElement = document.getElementById("body");
 
+let scrollOffset;
 let pokemonList = [];
 let currentOffset = 0;
 
@@ -46,19 +50,6 @@ let pushToList = (pokemonData) => {
   }
 };
 
-let insertAbilitiesInfo = (abilities_info, condition) => {
-  if (!abilities_info || abilities_info.length === 0) return "None";
-  else if (condition === "names_only") {
-    return abilities_info.map((ab) => ab.name).join(", ");
-  } else if (condition === "with_effects") {
-    return abilities_info
-      .map((ab) => `<div><strong>${ab.name}</strong>: ${ab.effect}</div>`)
-      .join("");
-  } else {
-    return "";
-  }
-};
-
 let findGermanName = (speciesData) => {
   if (!speciesData) return null;
   let germanEntry = speciesData.names.find(
@@ -87,6 +78,12 @@ let insertTypes = (types) => {
     .join("");
 }
 
+let insertAbilities = (abilities) => {
+  return abilities
+    .map((ab) => `<span class="ability-name">${ab.name}</span>`)
+    .join(", ");
+}
+
 let findAbilitiesInfo = (data) => {
   return data.abilities.map((ab) => ({
     name: ab.ability.name,
@@ -102,120 +99,11 @@ let findGermanDescription = (speciesData) => {
   return germanEntry ? germanEntry.flavor_text : null;
 }
 
-
 let findStats = (data) => {
   return data.stats.map((stat) => ({
     name: stat.stat.name,
     value: stat.base_stat,
   }))
-}
-let getAbilityData = async (abilities) => {
-    const abilityData = await safeFetchJson(abilities.map((ab) => ab.ability.url));
-    if (!abilityData)
-      return { name: ab.ability.name, effect: "No data available" };
-    const effectEntry = abilityData.effect_entries.find(
-      (entry) => entry.language.name === "de"
-    );
-    const abilityName = abilityData.names.find(
-      (nameEntry) => nameEntry.language.name === "de"
-    );
-    return {
-      name: abilityName.name,
-      effect: effectEntry ? effectEntry.effect : "Keine Beschreibung verfügbar",
-    };
-};
-
-
-let getEvolutionChain = async (evoUrl) => {
-  const evolutionChainData = await getEvolutionData(evoUrl);
-    if (!evolutionChainData || !evolutionChainData.chain) return [];
-  const evoChain = [];
-  let currentStage = evolutionChainData.chain;
-  // working on do while loop for exceptione with more than one evolution like eevee
-  do {
-    let evoDetails = currentStage.evolution_details[0] || {};
-      evoChain.push({
-    "species_name": fetchOrFindGermanName(currentStage.species.id) || currentStage.species.name,
-    "id": extractId(currentStage.species.url),
-    "min_level": !evoDetails ? 1 : evoDetails.min_level,
-    "trigger_name": !evoDetails ? null : evoDetails.trigger,
-    "item": !evoDetails ? null : evoDetails.item
-  }); 
-  currentStage = currentStage['evolves_to'][0];
-    } while (!!currentStage && currentStage.hasOwnProperty('evolves_to'));
-  console.log(evoChain);
-  return evoChain;
-  }
-  
-  // while (currentStage) {
-  //   const speciesEntry = currentStage.species || {};
-  //   const speciesEntryUrl = speciesEntry.url || null;
-  //   let id = extractId(speciesEntryUrl);
-  //   let url = await getUrlsById(id);
-  //   evolutions.push(url);
-  //   i++;
-  //   currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
-  //     ? currentStage.evolves_to[0]
-  //     : null;
-  // }
- 
-
-  let fetchOrFindGermanName = async (nameOrId) => {
-    let germanName = null;
-    if (typeof nameOrId === "string") {
-      germanName = nameOrId;
-  } else if (typeof nameOrId === "number") {
-      if (pokemonCache.has(nameOrId)) {
-        germanName = pokemonCache.get(nameOrId).name;
-      } else {
-        const data = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon-species/${nameOrId}`);
-        germanName = findGermanName(data) || data.name;
-      }
-    }
-    return germanName;
-  }
-
-let getUrlsById = async (id) => {
-    let item = {
-      url: `https://pokeapi.co/api/v2/pokemon/${id}/`
-    }
-    return item;
-  }
-
-let getEvolutionData = async (evoUrl) => {
-    let evolutionChainData = null;
-  try {
-    if (pokemonSpeciesCache.has(evoUrl)) {
-      evolutionChainData = pokemonSpeciesCache.get(evoUrl);
-    } else {
-      evolutionChainData = await safeFetchJson(evoUrl);
-      if (evolutionChainData) pokemonSpeciesCache.set(evoUrl, evolutionChainData);
-    }
-    return evolutionChainData;
-  } catch (err) {
-    console.error('getEvolutionChain: failed fetching evolution chain:', err, evoUrl);
-    return [];
-  }
-}
-
-let extractId = (speciesEntryUrl) => {
-    let id = null;
-    if (speciesEntryUrl) {
-      const parts = speciesEntryUrl.split('/').filter(Boolean);
-      const last = parts[parts.length - 1];
-      const parsed = Number(last);
-      if (!Number.isNaN(parsed)) id = parsed;
-    }
-    return id;
-}
-
-let insertEvolutions = (evolution) => {
-  if (!evolution || evolution.length === 0) return "None";
-   else if (evolution || evolution.length !== 0) {
-    return evolution.map((ev) => templateEvolutions(ev)).join("");
-  } else {
-    return "";
-  }
 }
 
 let sortPokemonList = () => {
@@ -291,9 +179,6 @@ let setupNoScrollAndHover = () => {
   pokemonCards.forEach((card) => card.classList.toggle("hover"));
 };
 
-let scrollOffset;
-const scrollElement = document.getElementById("body");
-
 let blockScroll = () => {
   scrollOffset = window.pageYOffset;
   offsetMinusHeader =
@@ -303,21 +188,6 @@ let blockScroll = () => {
 let enableScroll = () => {
   scrollElement.style.removeProperty("top");
   setTimeout(() => window.scrollTo(0, scrollOffset), 0);
-};
-
-let openPokemonDialog = async (evoUrl = null, url, abUrl = null) => {
-  console.log(evoUrl, url, abUrl);
-  const pokemonId = extractId(url);
-  await loadPokemonDetails(url);
-  await evolutionAndAbilityData(evoUrl, abUrl);
-  const pokemon = pokemonList.find((p) => p.id === pokemonId);
-  createDialog(pokemon);
-  fillStatsBar(pokemon);
-  openTab(null, "about");
-  dialog.showModal();
-  blockScroll();
-  setupNoScrollAndHover();
-  dialogSection.classList.remove("hide");
 };
 
 let fillStatsBar = (pokemon) => {
@@ -330,11 +200,12 @@ let fillStatsBar = (pokemon) => {
     }
   });
 };
-//
-let createDialog = (pokemon) => {
+
+let createDialog = async (pokemon) => {
   if (!pokemon) return;
   dialog.innerHTML = "";
-  dialog.innerHTML += pokemonDialog(pokemon);
+  const html = await pokemonDialog(pokemon);
+  dialog.innerHTML += html;
 };
 
 let closePokemonDialog = () => {
@@ -361,9 +232,16 @@ let openTab = (evt, tabName) => {
       tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
     }
   }
-  document.getElementById(tabName).style.display = "flex";
+  openTargetTab(tabName, evt);
+}
+let openTargetTab = (tabName, evt) => {
+  const targetTab = document.getElementById(tabName);
+  if (targetTab) {
+    targetTab.style.display = "flex";
+  } else {
+    console.error("Tab not found:", tabName);
+  }
   if (evt !== null) {
-    console.log(evt.currentTarget);
     evt.currentTarget.className += " active";
   }
 };
@@ -400,7 +278,6 @@ let nextAndPreviousDialog = async (id) => {
   const evoUrl = findPokemon.evolutionchainUrl ? findPokemon.evolutionchainUrl : null;
   const url = findPokemon.url ? findPokemon.url : null;
   const abilityUrls = findPokemon.abilities ? findPokemon.abilities.map(ab => ab.url) : null;
-  console.log(evoUrl, url, abilityUrls);
   await openPokemonDialog(evoUrl, url, abilityUrls);
 }
 
@@ -420,7 +297,6 @@ let searchPokemon = () => {
     alert("Keine Übereinstimmung gefunden.");
     foundPokemon = pokemonList;
   }
-  console.log(foundPokemon)
   renderCards(foundPokemon);
   inputField.value = "";
 }

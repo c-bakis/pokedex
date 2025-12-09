@@ -214,12 +214,14 @@ table tr td:nth-child(2) {
     line-height: 1.75;
 }
 
-.pokemon-evolutions {
+#evolution {
+    width: 100%;
+    height: auto;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 10px;
-    padding: 5px;
+    justify-content: space-evenly;
+    align-items: space-evenly;
+    flex-wrap: wrap;
+    overflow-y: auto;
 }
 
 .pokemon-evolutions .evolution-sprite {
@@ -238,6 +240,24 @@ table tr td:nth-child(2) {
     right: 5%;
 }
 
+.evolution-container {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+.pokemon-evolutions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 5px;
+}
+
+p.min_level {
+    padding-bottom: 30px;
+}
 
 @media (max-width: 1348px) {
 

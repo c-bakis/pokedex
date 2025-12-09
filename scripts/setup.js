@@ -10,7 +10,6 @@ async function loadPokemon() {
       return;
     }
     currentOffset += 30;
-  console.log(data.results);
     await renderAllPokemon(data.results);
   } finally {
     spinnerHide();
@@ -40,7 +39,6 @@ async function loadGenerationOfPokemon(firstId, lastId) {
     if (!data) return;
     currentOffset = lastId;
     await renderAllPokemon(data.results);
-  console.log(data);
   } finally {
     spinnerHide();
   }
@@ -60,14 +58,11 @@ async function safeFetchJson(url) {
 async function loadPokemonDetails(pokemon) {
     spinnerShow();
     try {
-              console.log(pokemonCache.has(pokemon), pokemon);
     if (typeof pokemon === 'object' && pokemon !== null && 'url' in pokemon && pokemonCache.has(pokemon.url)) {
         const pokemonData = pokemonCache.get(pokemon.url);
-        console.log(pokemonData);
         return pokemonData;
       } else if (pokemonCache.has(pokemon)) {
         const pokemonData = pokemonCache.get(pokemon);
-        console.log(pokemon);
         return pokemonData;
       } else {
         const data = await fetchAndStorePokemonData(pokemon);
@@ -85,11 +80,10 @@ async function fetchAndStorePokemonData(pokemon) {
         const pokemonData = await mapPokemonData(data, speciesData, pokemon.url); 
         pokemonCache.set(pokemon.url, pokemonData);
         pushToList(pokemonData);
-    console.log(pokemonData);
         return pokemonData;
 }
 
-let getSpeciesData = async (speciesUrl) => {
+async function getSpeciesData(speciesUrl) {
   let speciesData = null;
   if (speciesUrl) {
     if (pokemonSpeciesCache.has(speciesUrl)) {
@@ -122,29 +116,158 @@ async function mapPokemonData(data, speciesData, url) {
     }
 }
 
-async function evolutionAndAbilityData (evoUrl, abilityUrls) {
-  
+let openPokemonDialog = async (evoUrl = null, url, abUrl = null) => {
+  const pokemonId = extractId(url);
+  await loadPokemonDetails(url);
+  // await evolutionAndAbilityData(evoUrl, abUrl);
+  const pokemon = pokemonList.find((p) => p.id === pokemonId);
+  await createDialog(pokemon);
+  fillStatsBar(pokemon);
+  openTab(null, "about");
+  dialog.showModal();
+  blockScroll();
+  setupNoScrollAndHover();
+  dialogSection.classList.remove("hide");
+};
+
+async function insertAbilitiesDataInDialog (abilityUrls) {
+  let abilitiesData = null;
+  if (abilityCache.has(abilityUrls)) {
+    abilitiesData = abilityCache.get(abilityUrls);
+  } else {
+    abilitiesData = await getAbilityData(abilityUrls);
+    if (abilitiesData) abilityCache.set(abilityUrls, abilitiesData);
+  }
+  console.log(abilitiesData)
+    return abilitiesData
+    .map((ab) => templateAbilitiesInDialog(ab)).join("");
 }
 
+async function insertEvolutionDataInDialog (evoUrl) {
+  let evolutionData = null; if (evolutionCache.has(evoUrl)) {
+    evolutionData = evolutionCache.get(evoUrl);
+  } else {
+    evolutionData = await getEvolutionChain(evoUrl);
+    if (evolutionData) evolutionCache.set(evoUrl, evolutionData);
+  }  if (!evolutionData || evolutionData.length === 0) return "None";
+   else if (evolutionData || evolutionData.length !== 0) {
+    console.log(evolutionData);
+    return evolutionData.map((ev) => templateEvolutionsInDialog(ev)).join("");
+  } else {
+    return "";
+  }
+}
+let getAbilityData = async (abilityUrls) => {
+  return Promise.all(abilityUrls.map(async (abUrl) => {
+    const abData = await safeFetchJson(abUrl);
+      if (!abData) return { name: abUrl, effect: "No data available" };
+      const effectEntry = abData.effect_entries.find(
+        (entry) => entry.language.name === "de"
+      );
+      const abilityName = abData.names.find(
+        (nameEntry) => nameEntry.language.name === "de"
+      );
+      return {
+        name: abilityName ? abilityName.name : abUrl,
+        effect: effectEntry ? effectEntry.effect : "Keine Beschreibung verfügbar",
+      };
+    })
+  );
+}
 
-// async function asyncPool(items, asyncFn) {
-//   const maxConcurrency = 12;
-//   const results = [];
-//   const executing = new Set();
+let getEvolutionChain = async (evoUrl) => {
+  const evolutionChainData = await getEvolutionData(evoUrl);
+  if (!evolutionChainData || !evolutionChainData.chain) return [];
+  const results = [];
 
-//   for (const item of items) {
-//     const p = Promise.resolve().then(() => asyncFn(item));
-//     results.push(p);
-//     executing.add(p);
-//     const clean = () => executing.delete(p);
-//     p.then(clean).catch(clean);
+  const traverse = async (node, evoDetails = null) => {
+    const speciesUrl = node.species && node.species.url;
+    const id = extractId(speciesUrl);
+    const name = await fetchOrFindGermanName(id) || (node.species && node.species.name) || null;
+    const image = id ? await getImageForEvolutionChain(id) : null;
+    results.push(evolutionobject(name, id, image, evoDetails));
+    if (node.evolves_to && node.evolves_to.length > 0) {
+      for (const child of node.evolves_to) {
+        const childEvoDetails = (child.evolution_details && child.evolution_details[0]) || null;
+        await traverse(child, childEvoDetails);
+      }
+    }
+  };
+  await traverse(evolutionChainData.chain, null);
+  return results;
+}
 
-//     if (executing.size >= maxConcurrency) {
-//       await Promise.race(executing);
-//     }
-//   }
-//   const setteledResults = await Promise.allSettled(results);
-//   return setteledResults.map((r) =>
-//     r.status === "fulfilled" ? r.value : null
-//   );
-// }
+let evolutionobject = (name, id, image, evoDetails) => {
+  return {
+    species_name: name,
+    id: id,
+    min_level: evoDetails && typeof evoDetails.min_level !== 'undefined' ? evoDetails.min_level : null,
+    trigger_name: evoDetails && evoDetails.trigger ? evoDetails.trigger.name : null,
+    item: evoDetails && evoDetails.item ? evoDetails.item.name : null,
+    image: image || null,
+  };
+}
+
+let getImageForEvolutionChain = async (id) => {
+  if (!id) return null;
+  const url = `https://pokeapi.co/api/v2/pokemon/${id}/`;
+  const data = await safeFetchJson(url);
+  if (!data) return null;
+  return (
+    (data.sprites && data.sprites.other && data.sprites.other.dream_world && data.sprites.other.dream_world.front_default) ||
+    data.sprites.front_default ||
+    null
+  );
+}
+
+  let fetchOrFindGermanName = async (id) => {
+      let url = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
+      let speciesData = await getSpeciesData(url);
+      let germanName = findGermanName(speciesData);
+      return germanName;
+    
+  }
+
+let getUrlsById = async (id) => {
+    let item = {
+      url: `https://pokeapi.co/api/v2/pokemon/${id}/`
+    }
+    return item;
+  }
+
+let getEvolutionData = async (evoUrl) => {
+    let evolutionChainData = null;
+  try {
+    if (pokemonSpeciesCache.has(evoUrl)) {
+      evolutionChainData = pokemonSpeciesCache.get(evoUrl);
+    } else {
+      evolutionChainData = await safeFetchJson(evoUrl);
+      if (evolutionChainData) pokemonSpeciesCache.set(evoUrl, evolutionChainData);
+    }
+    return evolutionChainData;
+  } catch (err) {
+    console.error('getEvolutionChain: failed fetching evolution chain:', err, evoUrl);
+    return [];
+  }
+}
+
+let extractId = (speciesEntryUrl) => {
+    let id = null;
+    if (speciesEntryUrl) {
+      const parts = speciesEntryUrl.split('/').filter(Boolean);
+      const last = parts[parts.length - 1];
+      const parsed = Number(last);
+      if (!Number.isNaN(parsed)) id = parsed;
+    }
+    return id;
+}
+
+let isNullOrData = (min_level, trigger_name, item) => {
+    if (min_level !== null) {
+        return `Level ${min_level}`;
+    } else if (trigger_name === 'use-item' && item !== null) {
+        return `Benutze ${item}`;
+    } else {
+        return '';
+    }
+}

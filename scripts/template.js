@@ -31,8 +31,10 @@ let reloadbutton = () => {
         </div>`;
 };
 
-let pokemonDialog = (pokemon) => {
-  return `
+let pokemonDialog = async (pokemon) => {
+    const abilitiesHtml = await insertAbilitiesDataInDialog(pokemon.abilities.map(ab => ab.url));
+    const evolutionHtml = await insertEvolutionDataInDialog(pokemon.evolutionchainUrl);
+    return `
             <div class="previous-and-next-btn previous">
                 <button class="type-${pokemon.class}" id="previous" 
                 onclick="previousPokemon(${pokemon.id})"> < </button>
@@ -79,15 +81,12 @@ let pokemonDialog = (pokemon) => {
                             <p class="description"><strong>Beschreibung: </strong></p>
                             <p>${pokemon.description}</p>
                             <p class="abilities"><strong>Fähigkeiten:</strong></p>
-                            <p>${insertAbilitiesInfo(
-                              pokemon.abilities_info,
-                              "names_only"
-                            )}</p>
+                            <p>${insertAbilities(pokemon.abilities)}</p>
                     </div>
         
          <div id="ability" class="dialog-tab-pane abilities-tab">
             <div class="abilities-info">
-                ${insertAbilitiesInfo(pokemon.abilities_info, "with_effects")}
+                ${abilitiesHtml}
             </div>
 
         </div>
@@ -129,7 +128,7 @@ let pokemonDialog = (pokemon) => {
             </table>
         </div>
          <div id="evolution" class="dialog-tab-pane evolution-tab">
-            ${insertEvolutions(pokemon.evolutions)}
+            ${evolutionHtml}
         </div>
         </div>
         </div>
@@ -138,16 +137,28 @@ let pokemonDialog = (pokemon) => {
     `;
 };
 
-let templateEvolutions = (ev) => {
+let templateAbilitiesInDialog = (ab) => {
     return `
-        <div>
+        <div class="ability-info">
+            <h3 class="ability-name">${ab.name}</h3>
+            <p class="ability-effect">${ab.effect}</p>
+        </div>
+    `;
+}
+
+let templateEvolutionsInDialog = (ev) => {
+    return `
+        <div class="evolution-container">
                 <div class="pokemon-evolutions evolution-name">
-                 <p class="pokemon-name">${ev.name} </p>
+                 <p class="pokemon-name">${ev.species_name} </p>
                  <p> # ${ev.id}</p>
              </div>
              <div class="pokemon-evolutions evolution-image">
                 <img src="${ev.image}" class="evolution-sprite" 
-                    alt="${ev.name} image">
+                    alt="${ev.species_name} image">
+             </div>
+             <div>
+                <p class="min_level">${isNullOrData(ev.min_level, ev.trigger_name, ev.item)}</p>
              </div>
         </div>
     `;
