@@ -107,7 +107,7 @@ function spinnerHide() {
 
 let pushToList = (pokemonData) => {
   if (!pokemonData || typeof pokemonData.id === "undefined") {
-    console.warn("indexExist called without pokemonData or id");
+    console.warn(pokemonData.id, "indexExist called without pokemonData or id");
     return false;
   }
   const id = pokemonData.id;
@@ -132,19 +132,6 @@ let insertAbilitiesInfo = (abilities_info, condition) => {
   } else {
     return "";
   }
-};
-
-let getSpeciesData = async (speciesUrl) => {
-  let speciesData = null;
-  if (speciesUrl) {
-    if (pokemonSpeciesCache.has(speciesUrl)) {
-      speciesData = pokemonSpeciesCache.get(speciesUrl);
-    } else {
-      speciesData = await safeFetchJson(speciesUrl);
-      if (speciesData) pokemonSpeciesCache.set(speciesUrl, speciesData);
-    }
-  }
-  return speciesData;
 };
 
 let findGermanName = (speciesData) => {
@@ -185,10 +172,11 @@ let findAbilitiesInfo = (data) => {
 let findGermanDescription = (speciesData) => {
   if (!speciesData || !speciesData.flavor_text_entries) return null;
   let germanEntry = speciesData.flavor_text_entries.find(
-    (entry) => entry.language.name === "de"
+    (entry) => entry.language.name === "de" ? entry.language.name === "de" : null
   );
-  return germanEntry.flavor_text ? germanEntry.flavor_text : null;
+  return germanEntry ? germanEntry.flavor_text : null;
 }
+
 
 let findStats = (data) => {
   return data.stats.map((stat) => ({
@@ -197,8 +185,7 @@ let findStats = (data) => {
   }))
 }
 let getAbilityData = async (abilities) => {
-  const abilitiesInfo = await asyncPool(abilities, async (ab) => {
-    const abilityData = await safeFetchJson(ab.ability.url);
+    const abilityData = await safeFetchJson(abilities.map((ab) => ab.ability.url));
     if (!abilityData)
       return { name: ab.ability.name, effect: "No data available" };
     const effectEntry = abilityData.effect_entries.find(
@@ -211,36 +198,56 @@ let getAbilityData = async (abilities) => {
       name: abilityName.name,
       effect: effectEntry ? effectEntry.effect : "Keine Beschreibung verfügbar",
     };
-  });
-  return abilitiesInfo;
 };
 
-let getEvolutionChain = async (evoUrl) => {
-  let evolutionChainData = await getEvolutionData(evoUrl);
-    if (!evolutionChainData || !evolutionChainData.chain) return [];
-  const evolutions = [];
-  let currentStage = evolutionChainData.chain;
-  let i = 0;
-  // working on do while loop for exceptione with more than one evolution like eevee
-  // do {
-  //   let numOfEvolutions = currentStage.evolves_to.length;
 
-  // }
-  while (currentStage) {
-    const speciesEntry = currentStage.species || {};
-    const speciesEntryUrl = speciesEntry.url || null;
-    let id = extractId(speciesEntryUrl);
-    let url = await getUrlsById(id);
-    evolutions.push(url);
-    i++;
-    currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
-      ? currentStage.evolves_to[0]
-      : null;
+let getEvolutionChain = async (evoUrl) => {
+  const evolutionChainData = await getEvolutionData(evoUrl);
+    if (!evolutionChainData || !evolutionChainData.chain) return [];
+  const evoChain = [];
+  let currentStage = evolutionChainData.chain;
+  // working on do while loop for exceptione with more than one evolution like eevee
+  do {
+    let evoDetails = currentStage.evolution_details[0] || {};
+      evoChain.push({
+    "species_name": fetchOrFindGermanName(currentStage.species.id) || currentStage.species.name,
+    "id": extractId(currentStage.species.url),
+    "min_level": !evoDetails ? 1 : evoDetails.min_level,
+    "trigger_name": !evoDetails ? null : evoDetails.trigger,
+    "item": !evoDetails ? null : evoDetails.item
+  }); 
+  currentStage = currentStage['evolves_to'][0];
+    } while (!!currentStage && currentStage.hasOwnProperty('evolves_to'));
+  console.log(evoChain);
+  return evoChain;
   }
-  const evolutionChain = await asyncPool(evolutions, (evolution) =>
-    loadPokemonDetails(evolution)
-  );
-    return evolutionChain
+  
+  // while (currentStage) {
+  //   const speciesEntry = currentStage.species || {};
+  //   const speciesEntryUrl = speciesEntry.url || null;
+  //   let id = extractId(speciesEntryUrl);
+  //   let url = await getUrlsById(id);
+  //   evolutions.push(url);
+  //   i++;
+  //   currentStage = currentStage.evolves_to && currentStage.evolves_to.length > 0
+  //     ? currentStage.evolves_to[0]
+  //     : null;
+  // }
+ 
+
+  let fetchOrFindGermanName = async (nameOrId) => {
+    let germanName = null;
+    if (typeof nameOrId === "string") {
+      germanName = nameOrId;
+  } else if (typeof nameOrId === "number") {
+      if (pokemonCache.has(nameOrId)) {
+        germanName = pokemonCache.get(nameOrId).name;
+      } else {
+        const data = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon-species/${nameOrId}`);
+        germanName = findGermanName(data) || data.name;
+      }
+    }
+    return germanName;
   }
 
 let getUrlsById = async (id) => {
@@ -248,7 +255,7 @@ let getUrlsById = async (id) => {
       url: `https://pokeapi.co/api/v2/pokemon/${id}/`
     }
     return item;
-}
+  }
 
 let getEvolutionData = async (evoUrl) => {
     let evolutionChainData = null;
@@ -292,8 +299,11 @@ let sortPokemonList = () => {
 }
 
 let renderAllPokemon = async (pokemons) => {
-  const results = await asyncPool(pokemons, (pokemon) =>
-    loadPokemonDetails(pokemon)
+  // const results = await asyncPool(pokemons, (pokemon) =>
+  //   loadPokemonDetails(pokemon)
+  // );
+  const results = await Promise.all(
+    pokemons.map((pokemon) => loadPokemonDetails(pokemon))
   );
   const validResults = results.filter((r) => r !== null);
   const newItems = validResults.filter(
@@ -373,8 +383,10 @@ let enableScroll = () => {
   setTimeout(() => window.scrollTo(0, scrollOffset), 0);
 };
 
-let openPokemonDialog = async (pokemonId) => {
-  await fetchPokemonDetails(pokemonId);
+let openPokemonDialog = async (evoUrl, url, abUrl) => {
+  const pokemonId = extractId(url);
+  await loadPokemonDetails(url);
+  await evolutionAndAbilityData(evoUrl, abUrl);
   const pokemon = pokemonList.find((p) => p.id === pokemonId);
   createDialog(pokemon);
   fillStatsBar(pokemon);
@@ -441,7 +453,8 @@ let nextPokemon = (id) => {
       newId = pokemonList[0].id;
     }
   closePokemonDialog();
-  openPokemonDialog(newId);
+  const url = getUrlsById(newId)
+  openPokemonDialog(url);
 }
 let previousPokemon = (id) => {
   let newId = id - 1;
@@ -451,7 +464,8 @@ let previousPokemon = (id) => {
       newId = lastId;  
     }
   closePokemonDialog();
-  openPokemonDialog(newId);
+  const url = getUrlsById(newId)
+  openPokemonDialog(evoUrl, url, abUrl);
 }
 
 let searchPokemon = () => {
