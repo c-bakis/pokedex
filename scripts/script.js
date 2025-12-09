@@ -34,6 +34,29 @@ function spinnerHide() {
   }
 }
 
+function showToast(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('toast-container');
+  if (!container) {
+    console.warn('Toast container not found');
+    return;
+  }
+  
+  const toast = toastTemplate(message, type);
+  container.innerHTML = toast;
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  const hide = () => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 200);
+  };
+  setTimeout(hide, duration);
+  return {
+    dismiss: hide,
+  };
+}
+
 let pushToList = (pokemonData) => {
   if (!pokemonData || typeof pokemonData.id === "undefined") {
     console.warn(pokemonData.id, "indexExist called without pokemonData or id");
@@ -285,18 +308,27 @@ let searchPokemon = () => {
   let inputField = document.getElementById('input');
   let searchValue = inputField.value;
   let capitalValue = searchValue.replace(/^\w/, (c) => c.toUpperCase());
-  if (searchValue.length <= 2) {
-      alert("Bitte gib mindestens 3 Buchstaben ein, für eine erfolgreiche Suche.");
-  }
+    if (searchValue.length <= 2) {
+      showInlineMessage("Bitte gib mindestens 3 Buchstaben ein, für eine erfolgreiche Suche.", 'warn', 4500);
+    }
   let foundPokemon = pokemonList.filter((pokemon) => {
     if (searchValue.length >= 3 && pokemon.name.includes(capitalValue)) {
     return pokemon.name.includes(capitalValue);
     }
   });  
   if (foundPokemon.length == 0) {
-    alert("Keine Übereinstimmung gefunden.");
+    showInlineMessage("Keine Übereinstimmung gefunden.", 'info', 3500);
     foundPokemon = pokemonList;
   }
   renderCards(foundPokemon);
   inputField.value = "";
+}
+
+function showInlineMessage(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('search-messages');
+  if (!container) return;
+  container.innerHTML = `<div class="inline-msg ${type}">${message}</div>`;
+  setTimeout(() => {
+    container.innerHTML = '';
+  }, duration);
 }

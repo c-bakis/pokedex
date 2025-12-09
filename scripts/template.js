@@ -164,3 +164,11 @@ let templateEvolutionsInDialog = (ev) => {
     `;
 }
 
+let toastTemplate = (message, type) => {
+  return `
+    <div class="toast ${type}">
+        ${message}
+    </div>
+  `;
+}
+
