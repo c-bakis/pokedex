@@ -1,6 +1,5 @@
 
 const pokemonCache = new Map();
-const pokemonRawCache = new Map();
 const pokemonSpeciesCache = new Map();
 const dialog = document.getElementById("dialogContent");
 const dialogSection = document.getElementById("dialog");
@@ -30,80 +29,6 @@ function spinnerHide() {
     if (el) el.style.display = 'none';
   }
 }
-//
-// let fetchPokemonDetails = async (id) => {
-//   spinnerShow();
-//   try {
-//     let data = pokemonRawCache.has(id) ? pokemonRawCache.get(id) : null;
-//     console.log(data);
-//     let base = await getBaseData(id, data);
-//     if (!pokemonCache.has(id)) {
-//       const germanName = (await findGermanName(base.id)) || base.name;
-//       const summary = {
-//         id: base.id,
-//         name: germanName,
-//         image: base.image,
-//         types: base.types,
-//         class: base.class,
-//       };
-//       pokemonCache.set(id, summary);
-//     }
-//     const abilities_info = await getAbilityData(data.abilities);
-//     const speciesUrl = data.species && data.species.url;
-//     const speciesData = await getSpeciesData(speciesUrl);
-//     const description =
-//       speciesData && speciesData.flavor_text_entries
-//         ? (
-//             speciesData.flavor_text_entries.find(
-//               (entry) => entry.language.name === "de"
-//             ) || { flavor_text: "Keine Beschreibung verfügbar" }
-//           ).flavor_text.replace(/\f/g, " ")
-//         : "Keine Beschreibung verfügbar";
-//     const evolutions = await getEvolutionChain(speciesData.evolution_chain.url);
-
-//     const pokemonData = {
-//       ...base,
-//       abilities_info,
-//       description,
-//       evolutions,
-//       height: data.height / 10,
-//       weight: data.weight / 10,
-//       stats: data.stats.map((stat) => ({
-//         name: stat.stat.name,
-//         value: stat.base_stat,
-//       })),
-//     };
-//     await indexExist(pokemonData);
-//     return pokemonData;
-//   } finally {
-//     spinnerHide();
-//   }
-// };
-
-// let getBaseData = async (id, data) => {
-//   const cachedSummary = pokemonCache.has(id) ? pokemonCache.get(id) : null;
-//   if (!data) {
-//     data = await safeFetchJson(`https://pokeapi.co/api/v2/pokemon/${id}`);
-//     if (!data) return null;
-//     pokemonRawCache.set(id, data);
-//   }
-//   const base = {
-//     id: cachedSummary ? cachedSummary.id : data.id,
-//     name: cachedSummary ? cachedSummary.name : data.name.toLowerCase(),
-//     image: cachedSummary
-//       ? cachedSummary.image
-//       : data.sprites.other.dream_world.front_default
-//       ? data.sprites.other.dream_world.front_default
-//       : data.sprites.front_default,
-//     types: cachedSummary ? cachedSummary.types : findTypes(data),
-//     class: cachedSummary
-//       ? cachedSummary.class
-//       : data.types && data.types[0]
-//       ? data.types[0].type.name
-//       : "unknown",
-//   };
-//   return base;
-// };
 
 let pushToList = (pokemonData) => {
   if (!pokemonData || typeof pokemonData.id === "undefined") {
@@ -299,9 +224,6 @@ let sortPokemonList = () => {
 }
 
 let renderAllPokemon = async (pokemons) => {
-  // const results = await asyncPool(pokemons, (pokemon) =>
-  //   loadPokemonDetails(pokemon)
-  // );
   const results = await Promise.all(
     pokemons.map((pokemon) => loadPokemonDetails(pokemon))
   );
@@ -383,7 +305,8 @@ let enableScroll = () => {
   setTimeout(() => window.scrollTo(0, scrollOffset), 0);
 };
 
-let openPokemonDialog = async (evoUrl, url, abUrl) => {
+let openPokemonDialog = async (evoUrl = null, url, abUrl = null) => {
+  console.log(evoUrl, url, abUrl);
   const pokemonId = extractId(url);
   await loadPokemonDetails(url);
   await evolutionAndAbilityData(evoUrl, abUrl);
@@ -445,7 +368,7 @@ let openTab = (evt, tabName) => {
   }
 };
 
-let nextPokemon = (id) => {
+let nextPokemon = async (id) => {
   let newId = id + 1;  
   let lastIndex = pokemonList.length - 1;
   let lastId = pokemonList[lastIndex].id;
@@ -453,19 +376,32 @@ let nextPokemon = (id) => {
       newId = pokemonList[0].id;
     }
   closePokemonDialog();
-  const url = getUrlsById(newId)
-  openPokemonDialog(url);
+  await new Promise(resolve => setTimeout(resolve, 100));
+  await nextAndPreviousDialog(newId);
 }
-let previousPokemon = (id) => {
+let previousPokemon = async (id) => {
   let newId = id - 1;
   let lastIndex = pokemonList.length - 1;
   let lastId = pokemonList[lastIndex].id;
-  if (id > 1) {
+  if (newId < 1) {
       newId = lastId;  
     }
   closePokemonDialog();
-  const url = getUrlsById(newId)
-  openPokemonDialog(evoUrl, url, abUrl);
+  await new Promise(resolve => setTimeout(resolve, 100));
+  await nextAndPreviousDialog(newId);
+}
+
+let nextAndPreviousDialog = async (id) => {
+    const findPokemon = pokemonList.find(p => p.id === id);
+    if (!findPokemon) {
+      console.error('Pokemon not found for id:', id);
+      return;
+    }
+  const evoUrl = findPokemon.evolutionchainUrl ? findPokemon.evolutionchainUrl : null;
+  const url = findPokemon.url ? findPokemon.url : null;
+  const abilityUrls = findPokemon.abilities ? findPokemon.abilities.map(ab => ab.url) : null;
+  console.log(evoUrl, url, abilityUrls);
+  await openPokemonDialog(evoUrl, url, abilityUrls);
 }
 
 let searchPokemon = () => {

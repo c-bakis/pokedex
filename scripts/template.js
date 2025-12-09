@@ -3,7 +3,7 @@ let renderPokemonCard = (pokemon) => {
                  <div class="pokemon-card hover type-${
                    pokemon.class
                  }" id="pokemon-${pokemon.id}" 
-                        onclick="openPokemonDialog('${pokemon.evolutionchainUrl}', '${pokemon.url}', '${pokemon.abilities.map(ab => ab.url).join(',')}')" 
+                        onclick="openPokemonDialog('${pokemon.evolutionchainUrl}', '${pokemon.url}', '${pokemon.abilities.map(ab => ab.url)}')" 
                         role="button" tabindex="0">
                     <div class="pokemon-name-number">
                         <h3>

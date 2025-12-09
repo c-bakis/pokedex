@@ -70,7 +70,7 @@ async function loadPokemonDetails(pokemon) {
         console.log(pokemon);
         return pokemonData;
       } else {
-        const data = fetchAndStorePokemonData(pokemon);
+        const data = await fetchAndStorePokemonData(pokemon);
         return data;
       }
     } finally {
