@@ -34,7 +34,7 @@ function spinnerHide() {
   }
 }
 
-function showToast(message, type = 'info', duration = 4000) {
+function showToast(message, type = 'info', duration = 2000) {
   const container = document.getElementById('toast-container');
   if (!container) {
     console.warn('Toast container not found');
@@ -308,16 +308,17 @@ let searchPokemon = () => {
   let inputField = document.getElementById('input');
   let searchValue = inputField.value;
   let capitalValue = searchValue.replace(/^\w/, (c) => c.toUpperCase());
-    if (searchValue.length <= 2) {
-      showInlineMessage("Bitte gib mindestens 3 Buchstaben ein, für eine erfolgreiche Suche.", 'warn', 4500);
-    }
+  if (searchValue.length <= 2) {
+    showInlineMessage("Bitte gib mindestens 3 Buchstaben ein, für eine erfolgreiche Suche.", 'warn', 3500);
+    return;
+  }
   let foundPokemon = pokemonList.filter((pokemon) => {
     if (searchValue.length >= 3 && pokemon.name.includes(capitalValue)) {
     return pokemon.name.includes(capitalValue);
     }
   });  
   if (foundPokemon.length == 0) {
-    showInlineMessage("Keine Übereinstimmung gefunden.", 'info', 3500);
+    showInlineMessage("Keine Übereinstimmung gefunden.", 'info', 3000);
     foundPokemon = pokemonList;
   }
   renderCards(foundPokemon);
