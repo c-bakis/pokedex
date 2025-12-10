@@ -30,6 +30,7 @@ main {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    padding: 20px;
     justify-content: center;
 }
 
@@ -47,7 +48,6 @@ main {
 
 .no-scroll {
     position: fixed;
-    overflow: hidden;
     touch-action: none; 
     padding-right: 15px;
 }

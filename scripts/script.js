@@ -3,6 +3,7 @@ const pokemonCache = new Map();
 const pokemonSpeciesCache = new Map();
 const evolutionCache = new Map();
 const abilityCache = new Map();
+const burgertoggle = document.getElementById("burger-toggle");
 const dialog = document.getElementById("dialogContent");
 const dialogSection = document.getElementById("dialog");
 const loadMoreCardsButton = document.getElementById("loadMoreCards");
@@ -21,6 +22,17 @@ dialog.addEventListener("close", () => {
   setupNoScrollAndHover();
   dialogSection.classList.add("hide");
 });
+
+function scrollOffBurgerMenuOpen() {
+  console.log(burgertoggle.checked);
+  if (burgertoggle.checked) {
+    document.getElementById("body").classList.add("no-scroll");
+    document.getElementById("header").classList.add("no-scroll");
+  } else {
+    document.getElementById("body").classList.remove("no-scroll");
+    document.getElementById("header").classList.remove("no-scroll");
+  }
+}
 
 function spinnerShow() {
   _spinnerState.count++;
@@ -194,6 +206,7 @@ async function sortGeneration(numofGeneration) {
 
 let closeBurgerMenu = () => {
   document.getElementById("burger-toggle").checked = false;
+  scrollOffBurgerMenuOpen();
 };
 
 let setupNoScrollAndHover = () => {

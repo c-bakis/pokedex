@@ -192,7 +192,6 @@ table tr td:nth-child(2) {
     background-color: var(--second-bg-color);
     border-top: 20px solid var(--bg-color);
     border-radius: 30% 30% var(--border-radius) var(--border-radius);
-    overflow: hidden;
     margin: 20px;
 }
 
