@@ -18,6 +18,7 @@
 </head>
 <body id="body" onload="loadPokemon()">
     <header id="header">
+        <div class="content-limitation">
         <div class="header-logo">
             <img class="logo" src="./assets/img/pokeball.png" alt="pokeball logo">
         </div>
@@ -57,6 +58,7 @@
         <!-- Toast container for non-blocking notifications -->
         <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
         </div>
+        </div>
     </header>
     <main id="main">
         <section id="content">
@@ -66,6 +68,7 @@
             </div>
             <div class="load-cards">
                 <button onclick="loadPokemon()" id="loadMoreCards" class="load-cards-btn btn">Mehr Pokemon laden</button>
+                <button class="back-button hide" onclick="renderCards(pokemonList)">Zurück zur Übersicht</button>
             </div>
         </section>
 
