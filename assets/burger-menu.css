@@ -20,7 +20,7 @@
   height: 40px;
   position: absolute;
   top: 0px;
-  right: -10px;
+  right: 0px;
   cursor: pointer;
   z-index: 1001;
   padding: 0;
@@ -80,6 +80,14 @@
   border-bottom: none;
 }
 
+.burger-nav ul li:hover:last-child::after {
+  content: "Achtung, lange Ladezeit!";
+  font-size: var(--font-size-small);
+  color: var(--accent-color);
+  display: flex;
+  justify-content: center;
+}
+
 .burger-nav ul li {
   display: block;
   padding: 5px 5px;
@@ -107,4 +115,10 @@
     cursor: pointer;
 }
 
+@media (max-width: 462px) {
 
+    .burger-label {
+        width: 30px;
+        height: 30px;
+    }
+}

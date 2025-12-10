@@ -14,10 +14,10 @@ header {
 
 .content-limitation {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1440px;;
+    max-width: 1440px;
 }
 
 .logo {
@@ -92,7 +92,7 @@ h1 {
         font-size:var(--font-size-normal)
     }
     .logo {
-        width: 45px;
+        width: 50px;
         height: auto;
     }
 }
