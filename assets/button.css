@@ -1,5 +1,5 @@
 
-.load-cards-btn {
+.load-cards-btn, .back-button {
     padding: 10px 20px;
     font-size: 16px;
     background-color: var(--button-bg-color);
@@ -26,7 +26,7 @@ button, .pokemon-card, a {
     cursor: pointer;
 }
 
-.sort-bt:hover, .load-cards-btn:hover,  a:hover {
+.sort-bt:hover, .load-cards-btn:hover,  a:hover, .back-button:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
     background-color: var(--second-bg-color);
 }
@@ -36,7 +36,7 @@ button:active, a:active {
     border: none;
 }
 
-.close-btn, .load-cards-btn, .pokemon-card, a, .sort-bt {
+.close-btn, .load-cards-btn, .pokemon-card, a, .sort-bt, .back-button {
     border-radius: var(--border-radius);
 }
 

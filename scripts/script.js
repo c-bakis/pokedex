@@ -9,6 +9,7 @@ const loadMoreCardsButton = document.getElementById("loadMoreCards");
 const _spinnerState = { count: 0 };
 const pokemonContainer = document.getElementById("pokemon-cards-container");
 const scrollElement = document.getElementById("body");
+const backButtonContainer = document.querySelector('.back-button');
 
 let scrollOffset;
 let pokemonList = [];
@@ -312,17 +313,36 @@ let searchPokemon = () => {
     showInlineMessage("Bitte gib mindestens 3 Buchstaben ein, für eine erfolgreiche Suche.", 'warn', 3500);
     return;
   }
-  let foundPokemon = pokemonList.filter((pokemon) => {
-    if (searchValue.length >= 3 && pokemon.name.includes(capitalValue)) {
-    return pokemon.name.includes(capitalValue);
-    }
-  });  
+  let foundPokemon = filterPokemonForSearching(searchValue, capitalValue);
   if (foundPokemon.length == 0) {
     showInlineMessage("Keine Übereinstimmung gefunden.", 'info', 3000);
     foundPokemon = pokemonList;
   }
   renderCards(foundPokemon);
   inputField.value = "";
+}
+
+let filterPokemonForSearching = (searchValue, capitalValue) => {
+    return pokemonList.filter((pokemon) => {
+    if (searchValue.length >= 3 && pokemon.name.includes(capitalValue)) {
+      addBackButton();
+    return pokemon.name.includes(capitalValue);
+    } else if (searchValue.length >= 3 && pokemon.name.includes(searchValue)) {
+      addBackButton();
+    return pokemon.name.includes(searchValue);
+    }
+  });  
+}
+
+let addBackButton = () => {
+  backButtonContainer.classList.remove('hide');
+  document.querySelector('.load-cards-btn').classList.add('hide');
+}
+
+let OverviewAndHideBackButton = () => {
+  renderCards(pokemonList);
+  backButtonContainer.classList.add('hide');
+  document.querySelector('.load-cards-btn').classList.remove('hide');
 }
 
 function showInlineMessage(message, type = 'info', duration = 4000) {
