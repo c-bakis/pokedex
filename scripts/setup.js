@@ -138,7 +138,6 @@ async function insertAbilitiesDataInDialog (abilityUrls) {
     abilitiesData = await getAbilityData(abilityUrls);
     if (abilitiesData) abilityCache.set(abilityUrls, abilitiesData);
   }
-  console.log(abilitiesData)
     return abilitiesData
     .map((ab) => templateAbilitiesInDialog(ab)).join("");
 }
@@ -151,7 +150,6 @@ async function insertEvolutionDataInDialog (evoUrl) {
     if (evolutionData) evolutionCache.set(evoUrl, evolutionData);
   }  if (!evolutionData || evolutionData.length === 0) return "None";
    else if (evolutionData || evolutionData.length !== 0) {
-    console.log(evolutionData);
     return evolutionData.map((ev) => templateEvolutionsInDialog(ev)).join("");
   } else {
     return "";

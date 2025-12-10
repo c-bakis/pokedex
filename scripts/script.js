@@ -24,7 +24,6 @@ dialog.addEventListener("close", () => {
 });
 
 function scrollOffBurgerMenuOpen() {
-  console.log(burgertoggle.checked);
   if (burgertoggle.checked) {
     document.getElementById("body").classList.add("no-scroll");
     document.getElementById("header").classList.add("no-scroll");

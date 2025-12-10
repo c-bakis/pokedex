@@ -55,7 +55,7 @@ h1 {
 }
 
 .search-field button {
-    width: 20px;
+    width: 40px;
     height: 40px;
     position: absolute;
     background-image: url(../assets/img/pokeball.png);

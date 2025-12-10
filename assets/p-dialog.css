@@ -40,7 +40,6 @@ dialog:-internal-dialog-in-top-layer {
 .right-inner-dialog, .left-inner-dialog {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
     width: 100%;
     height: auto;
@@ -99,6 +98,7 @@ dialog:-internal-dialog-in-top-layer {
 
 .dialog-tabs {
     display: flex;
+    width: 100%;
 }
 .dialog-tab-content {
     position: relative;
@@ -118,9 +118,9 @@ dialog:-internal-dialog-in-top-layer {
     border : 2px solid var(--second-bg-color);
     color: var(--text-color);
     border-radius: 0;
-    padding: 6px;
+    padding: 12px 2px;
     margin-left: -3px;
-    width: 100px;
+    width: 24%;
     transition: background-color 0.3s ease;
 }
 
