@@ -135,7 +135,7 @@ dialog:-internal-dialog-in-top-layer {
 .dialog-tab-button:hover {
     background-color: var(--bg-color);
 }
-.info-tab, .abilities-tab, .stats-tab, .evolution-tab{
+.info-tab, .abilities-tab, .stats-tab {
     flex-direction: column;
 }
 
@@ -361,7 +361,7 @@ p.min_level {
         min-width: 100%;
         min-height: 100vh;;
     }
-.evolution-container {
+    .evolution-container {
         padding: 5px;
     }
     .pokemon-evolutions {
