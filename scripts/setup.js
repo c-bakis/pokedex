@@ -14,7 +14,7 @@ async function loadPokemon() {
   } finally {
     spinnerHide();
   }
-}
+};
 
 async function loadAllPokemon() {
   spinnerShow();
@@ -28,7 +28,7 @@ async function loadAllPokemon() {
   } finally {
     spinnerHide();
   }
-}
+};
 
 async function loadGenerationOfPokemon(firstId, lastId) {
   spinnerShow();
@@ -42,7 +42,7 @@ async function loadGenerationOfPokemon(firstId, lastId) {
   } finally {
     spinnerHide();
   }
-}
+};
 
 async function safeFetchJson(url) {
   try {
@@ -53,7 +53,7 @@ async function safeFetchJson(url) {
     console.error("Fetch error:", err);
     return null;
   }
-}
+};
 
 async function loadPokemonDetails(pokemon) {
     spinnerShow();
@@ -71,7 +71,7 @@ async function loadPokemonDetails(pokemon) {
     } finally {
       spinnerHide();
   }
-}
+};
 
 async function fetchAndStorePokemonData(pokemon) {
           const data = await safeFetchJson(pokemon.url);
@@ -81,7 +81,7 @@ async function fetchAndStorePokemonData(pokemon) {
         pokemonCache.set(pokemon.url, pokemonData);
         pushToList(pokemonData);
         return pokemonData;
-}
+};
 
 async function getSpeciesData(speciesUrl) {
   let speciesData = null;
@@ -94,7 +94,7 @@ async function getSpeciesData(speciesUrl) {
     }
   }
   return speciesData;
-}
+};
 
 async function mapPokemonData(data, speciesData, url) {
     return {
@@ -114,12 +114,11 @@ async function mapPokemonData(data, speciesData, url) {
     stats: findStats(data),
     evolutionchainUrl: speciesData.evolution_chain.url,
     }
-}
+};
 
-let openPokemonDialog = async (evoUrl = null, url, abUrl = null) => {
+const openPokemonDialog = async (evoUrl = null, url, abUrl = null) => {
   const pokemonId = extractId(url);
   await loadPokemonDetails(url);
-  // await evolutionAndAbilityData(evoUrl, abUrl);
   const pokemon = pokemonList.find((p) => p.id === pokemonId);
   await createDialog(pokemon);
   fillStatsBar(pokemon);
@@ -140,7 +139,7 @@ async function insertAbilitiesDataInDialog (abilityUrls) {
   }
     return abilitiesData
     .map((ab) => templateAbilitiesInDialog(ab)).join("");
-}
+};
 
 async function insertEvolutionDataInDialog (evoUrl) {
   let evolutionData = null; if (evolutionCache.has(evoUrl)) {
@@ -154,8 +153,9 @@ async function insertEvolutionDataInDialog (evoUrl) {
   } else {
     return "";
   }
-}
-let getAbilityData = async (abilityUrls) => {
+};
+
+const getAbilityData = async (abilityUrls) => {
   return Promise.all(abilityUrls.map(async (abUrl) => {
     const abData = await safeFetchJson(abUrl);
       if (!abData) return { name: abUrl, effect: "No data available" };
@@ -171,9 +171,9 @@ let getAbilityData = async (abilityUrls) => {
       };
     })
   );
-}
+};
 
-let getEvolutionChain = async (evoUrl) => {
+const getEvolutionChain = async (evoUrl) => {
   const evolutionChainData = await getEvolutionData(evoUrl);
   if (!evolutionChainData || !evolutionChainData.chain) return [];
   const results = [];
@@ -193,9 +193,9 @@ let getEvolutionChain = async (evoUrl) => {
   };
   await traverse(evolutionChainData.chain, null);
   return results;
-}
+};
 
-let evolutionobject = (name, id, image, evoDetails) => {
+const evolutionobject = (name, id, image, evoDetails) => {
   return {
     species_name: name,
     id: id,
@@ -204,9 +204,9 @@ let evolutionobject = (name, id, image, evoDetails) => {
     item: evoDetails && evoDetails.item ? evoDetails.item.name : null,
     image: image || null,
   };
-}
+};
 
-let getImageForEvolutionChain = async (id) => {
+const getImageForEvolutionChain = async (id) => {
   if (!id) return null;
   const url = `https://pokeapi.co/api/v2/pokemon/${id}/`;
   const data = await safeFetchJson(url);
@@ -216,24 +216,24 @@ let getImageForEvolutionChain = async (id) => {
     data.sprites.front_default ||
     null
   );
-}
+};
 
-  let fetchOrFindGermanName = async (id) => {
+const fetchOrFindGermanName = async (id) => {
       let url = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
       let speciesData = await getSpeciesData(url);
       let germanName = findGermanName(speciesData);
       return germanName;
     
-  }
+  };
 
-let getUrlsById = async (id) => {
+const getUrlsById = async (id) => {
     let item = {
       url: `https://pokeapi.co/api/v2/pokemon/${id}/`
     }
     return item;
-  }
+  };
 
-let getEvolutionData = async (evoUrl) => {
+const getEvolutionData = async (evoUrl) => {
     let evolutionChainData = null;
   try {
     if (pokemonSpeciesCache.has(evoUrl)) {
@@ -247,9 +247,9 @@ let getEvolutionData = async (evoUrl) => {
     console.error('getEvolutionChain: failed fetching evolution chain:', err, evoUrl);
     return [];
   }
-}
+};
 
-let extractId = (speciesEntryUrl) => {
+const extractId = (speciesEntryUrl) => {
     let id = null;
     if (speciesEntryUrl) {
       const parts = speciesEntryUrl.split('/').filter(Boolean);
@@ -258,9 +258,9 @@ let extractId = (speciesEntryUrl) => {
       if (!Number.isNaN(parsed)) id = parsed;
     }
     return id;
-}
+};
 
-let isNullOrData = (min_level, trigger_name, item) => {
+const isNullOrData = (min_level, trigger_name, item) => {
     if (min_level !== null) {
         return `Level ${min_level}`;
     } else if (trigger_name === 'use-item' && item !== null) {
@@ -268,4 +268,4 @@ let isNullOrData = (min_level, trigger_name, item) => {
     } else {
         return '';
     }
-}
+};

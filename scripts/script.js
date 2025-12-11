@@ -31,7 +31,7 @@ function scrollOffBurgerMenuOpen() {
     document.getElementById("body").classList.remove("no-scroll");
     document.getElementById("header").classList.remove("no-scroll");
   }
-}
+};
 
 function spinnerShow() {
   _spinnerState.count++;
@@ -44,7 +44,7 @@ function spinnerHide() {
     const el = document.getElementById('loading-screen');
     if (el) el.style.display = 'none';
   }
-}
+};
 
 function showToast(message, type = 'info', duration = 2000) {
   const container = document.getElementById('toast-container');
@@ -67,7 +67,7 @@ function showToast(message, type = 'info', duration = 2000) {
   return {
     dismiss: hide,
   };
-}
+};
 
 let pushToList = (pokemonData) => {
   if (!pokemonData || typeof pokemonData.id === "undefined") {
@@ -91,7 +91,7 @@ let findGermanName = (speciesData) => {
     (nameEntry) => nameEntry.language.name === "de"
   );
   return germanEntry.name ? germanEntry.name : null;;
-} 
+};
 
 let findTypes = (data) => {
   const typeIds = data.types.map((typeInfo) => {
@@ -102,7 +102,7 @@ let findTypes = (data) => {
     (id) =>
       `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/${id}.png`
   );
-}
+};
 
 let insertTypes = (types) => {
   return types
@@ -111,20 +111,14 @@ let insertTypes = (types) => {
         `<img src="${typeUrl}" class="pokemon-type-image" width="80" height="30" loading="lazy" alt="type icon">`
     )
     .join("");
-}
-
-let insertAbilities = (abilities) => {
-  return abilities
-    .map((ab) => `<span class="ability-name">${ab.name}</span>`)
-    .join(", ");
-}
+};
 
 let findAbilitiesInfo = (data) => {
   return data.abilities.map((ab) => ({
     name: ab.ability.name,
     url: ab.ability.url,
   }));
-}
+};
 
 let findGermanDescription = (speciesData) => {
   if (!speciesData || !speciesData.flavor_text_entries) return null;
@@ -132,19 +126,19 @@ let findGermanDescription = (speciesData) => {
     (entry) => entry.language.name === "de" ? entry.language.name === "de" : null
   );
   return germanEntry ? germanEntry.flavor_text : null;
-}
+};
 
 let findStats = (data) => {
   return data.stats.map((stat) => ({
     name: stat.stat.name,
     value: stat.base_stat,
   }))
-}
+};
 
 let sortPokemonList = () => {
   pokemonList.sort((a, b) => a.id - b.id);
   return pokemonList;
-}
+};
 
 let renderAllPokemon = async (pokemons) => {
   const results = await Promise.all(
@@ -158,12 +152,12 @@ let renderAllPokemon = async (pokemons) => {
 
   sortPokemonList();
   renderCards(pokemonList);
-}
+};
 
 let renderCards = (list) => {
   const html = list.map((pokemon) => renderPokemonCard(pokemon)).join("");
   pokemonContainer.innerHTML = html;
-}
+};
 
 async function sortGeneration(numofGeneration) {
   pokemonList = [];
@@ -201,14 +195,14 @@ async function sortGeneration(numofGeneration) {
       loadPokemon();
       break;
   }
-}
+};
 
-let closeBurgerMenu = () => {
+const closeBurgerMenu = () => {
   document.getElementById("burger-toggle").checked = false;
   scrollOffBurgerMenuOpen();
 };
 
-let setupNoScrollAndHover = () => {
+const setupNoScrollAndHover = () => {
   document.getElementById("body").classList.toggle("no-scroll");
   document.getElementById("header").classList.toggle("no-scroll");
   let pokemonCards = document.querySelectorAll(".pokemon-card");
@@ -226,7 +220,7 @@ let enableScroll = () => {
   setTimeout(() => window.scrollTo(0, scrollOffset), 0);
 };
 
-let fillStatsBar = (pokemon) => {
+const fillStatsBar = (pokemon) => {
   const statsBars = document.querySelectorAll(".stats-bar-fill");
   if (!pokemon || !pokemon.stats) return;
   pokemon.stats.forEach((stat, index) => {
@@ -237,26 +231,26 @@ let fillStatsBar = (pokemon) => {
   });
 };
 
-let createDialog = async (pokemon) => {
+const createDialog = async (pokemon) => {
   if (!pokemon) return;
   dialog.innerHTML = "";
   const html = await pokemonDialog(pokemon);
   dialog.innerHTML += html;
 };
 
-let closePokemonDialog = () => {
+const closePokemonDialog = () => {
   if (dialog.open) {
     dialog.close();
   }
 };
 
-let closeDialogOutsideClick = (event) => {
+const closeDialogOutsideClick = (event) => {
   if (event.target === dialog) {
     closePokemonDialog();
   }
 };
 
-let openTab = (evt, tabName) => {
+const openTab = (evt, tabName) => {
   let i, tabcontent, tabbuttons;
   tabcontent = document.getElementsByClassName("dialog-tab-pane");
   for (i = 0; i < tabcontent.length; i++) {
@@ -269,8 +263,9 @@ let openTab = (evt, tabName) => {
     }
   }
   openTargetTab(tabName, evt);
-}
-let openTargetTab = (tabName, evt) => {
+};
+
+const openTargetTab = (tabName, evt) => {
   const targetTab = document.getElementById(tabName);
   if (targetTab) {
     targetTab.style.display = "flex";
@@ -282,7 +277,7 @@ let openTargetTab = (tabName, evt) => {
   }
 };
 
-let nextPokemon = async (id) => {
+const nextPokemon = async (id) => {
   let newId = id + 1;  
   let lastIndex = pokemonList.length - 1;
   let lastId = pokemonList[lastIndex].id;
@@ -292,8 +287,9 @@ let nextPokemon = async (id) => {
   closePokemonDialog();
   await new Promise(resolve => setTimeout(resolve, 100));
   await nextAndPreviousDialog(newId);
-}
-let previousPokemon = async (id) => {
+};
+
+const previousPokemon = async (id) => {
   let newId = id - 1;
   let lastIndex = pokemonList.length - 1;
   let lastId = pokemonList[lastIndex].id;
@@ -303,9 +299,9 @@ let previousPokemon = async (id) => {
   closePokemonDialog();
   await new Promise(resolve => setTimeout(resolve, 100));
   await nextAndPreviousDialog(newId);
-}
+};
 
-let nextAndPreviousDialog = async (id) => {
+const nextAndPreviousDialog = async (id) => {
     const findPokemon = pokemonList.find(p => p.id === id);
     if (!findPokemon) {
       console.error('Pokemon not found for id:', id);
@@ -315,9 +311,9 @@ let nextAndPreviousDialog = async (id) => {
   const url = findPokemon.url ? findPokemon.url : null;
   const abilityUrls = findPokemon.abilities ? findPokemon.abilities.map(ab => ab.url) : null;
   await openPokemonDialog(evoUrl, url, abilityUrls);
-}
+};
 
-let searchPokemon = () => {
+const searchPokemon = () => {
   let inputField = document.getElementById('input');
   let searchValue = inputField.value;
   let capitalValue = searchValue.replace(/^\w/, (c) => c.toUpperCase());
@@ -332,9 +328,9 @@ let searchPokemon = () => {
   }
   renderCards(foundPokemon);
   inputField.value = "";
-}
+};
 
-let filterPokemonForSearching = (searchValue, capitalValue) => {
+const filterPokemonForSearching = (searchValue, capitalValue) => {
     return pokemonList.filter((pokemon) => {
     if (searchValue.length >= 3 && pokemon.name.includes(capitalValue)) {
       addBackButton();
@@ -344,18 +340,18 @@ let filterPokemonForSearching = (searchValue, capitalValue) => {
     return pokemon.name.includes(searchValue);
     }
   });  
-}
+};
 
-let addBackButton = () => {
+const addBackButton = () => {
   backButtonContainer.classList.remove('hide');
   document.querySelector('.load-cards-btn').classList.add('hide');
 }
 
-let OverviewAndHideBackButton = () => {
+const OverviewAndHideBackButton = () => {
   renderCards(pokemonList);
   backButtonContainer.classList.add('hide');
   document.querySelector('.load-cards-btn').classList.remove('hide');
-}
+};
 
 function showInlineMessage(message, type = 'info', duration = 4000) {
   const container = document.getElementById('search-messages');
@@ -364,4 +360,4 @@ function showInlineMessage(message, type = 'info', duration = 4000) {
   setTimeout(() => {
     container.innerHTML = '';
   }, duration);
-}
+};
