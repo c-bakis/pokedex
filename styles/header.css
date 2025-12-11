@@ -40,7 +40,7 @@ h1 {
 
 .search-field input {
     width: 100%;
-    height: 40px;
+    height: 45px;
     position: relative;
     border: none;
     outline: none;
@@ -55,8 +55,8 @@ h1 {
 }
 
 .search-field button {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     position: absolute;
     background-image: url(../assets/img/pokeball.png);
     background-position: center;

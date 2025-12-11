@@ -83,7 +83,7 @@
 }
 
 .burger-nav ul li:hover:last-child::after {
-  content: "Achtung, lange Ladezeit!";
+  content: "Achtung, kann längere Ladezeit benötigen!";
   font-size: var(--font-size-small);
   color: var(--accent-color);
   display: flex;
