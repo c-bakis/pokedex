@@ -113,6 +113,12 @@ let insertTypes = (types) => {
     .join("");
 };
 
+let insertAbilities = (abilities) => {
+  return abilities
+    .map((ab) => `<span class="ability-name">${ab.name}</span>`)
+    .join(", ");
+};
+
 let findAbilitiesInfo = (data) => {
   return data.abilities.map((ab) => ({
     name: ab.ability.name,
