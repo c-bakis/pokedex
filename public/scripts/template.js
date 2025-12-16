@@ -33,7 +33,10 @@ let reloadbutton = () => {
 
 let pokemonDialog = async (pokemon) => {
     const abilitiesHtml = await insertAbilitiesDataInDialog(pokemon.abilities.map(ab => ab.url));
+    const abilityNamesHtml = await insertAbilitiesNamesInDialog(pokemon.abilities.map(ab => ab.url));
     const evolutionHtml = await insertEvolutionDataInDialog(pokemon.evolutionchainUrl);
+    console.log(abilitiesHtml);
+    // const abilitiesNameHtml = await insertAbilities(abilitiesHtml);
     return `
             <div class="previous-and-next-btn previous">
                 <button class="type-${pokemon.class}" id="previous" 
@@ -81,7 +84,7 @@ let pokemonDialog = async (pokemon) => {
                             <p class="description"><strong>Beschreibung: </strong></p>
                             <p>${pokemon.description}</p>
                             <p class="abilities"><strong>Fähigkeiten:</strong></p>
-                            <p>${insertAbilities(pokemon.abilities)}</p>
+                            <p>${abilityNamesHtml}</p>
                     </div>
         
          <div id="ability" class="dialog-tab-pane abilities-tab">

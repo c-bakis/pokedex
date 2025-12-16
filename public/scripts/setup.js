@@ -129,20 +129,62 @@ const openPokemonDialog = async (evoUrl = null, url, abUrl = null) => {
   dialogSection.classList.remove("hide");
 };
 
+let insertAbilitiesNamesInDialog = async (abilityUrls) => {
+  const abilities = await getAbilityData(abilityUrls);
+  if (!abilities || abilities.length === 0) return "None";
+  return abilities
+    .map((ab) => `<span class="ability-name">${ab.name}</span>`)
+    .join(", ");
+};
+
 async function insertAbilitiesDataInDialog (abilityUrls) {
-  let abilitiesData = null;
-  if (abilityCache.has(abilityUrls)) {
-    abilitiesData = abilityCache.get(abilityUrls);
-  } else {
-    abilitiesData = await getAbilityData(abilityUrls);
-    if (abilitiesData) abilityCache.set(abilityUrls, abilitiesData);
-  }
+  const abilitiesData = await getAbilityData(abilityUrls);
+  if (!abilitiesData || abilitiesData.length === 0) return "None";
     return abilitiesData
     .map((ab) => templateAbilitiesInDialog(ab)).join("");
 };
 
+const checkAbilityCache = async (abilityUrl) => {
+   let abilitiesData = null;
+   
+  if (abilityCache.has(abilityUrl)) {
+    abilitiesData = abilityCache.get(abilityUrl);
+    return abilitiesData;
+  } else {
+    abilitiesData = await fetchAbilityData(abilityUrl);
+  }
+    return abilitiesData;
+};
+
+const getAbilityData = async (abilityUrls) => {
+  return Promise.all(abilityUrls.map(async (abUrl) => {
+    const abilityData = await checkAbilityCache(abUrl);
+    
+      abilityCache.set(abUrl, abilityData);
+      return abilityData;
+    })
+  );
+};
+
+const fetchAbilityData = async (abUrl) => {
+  const abData = await safeFetchJson(abUrl);
+      if (!abData) return { name: abUrl, effect: "No data available" };
+      const effectEntry = abData.effect_entries.find(
+        (entry) => entry.language.name === "de"
+      );
+      const abilityName = abData.names.find(
+        (nameEntry) => nameEntry.language.name === "de"
+      );
+      const abilityData = {
+        name: abilityName ? abilityName.name : abUrl,
+        effect: effectEntry ? effectEntry.effect : "Keine Beschreibung verfügbar",
+      };
+      return abilityData;
+};
+
 async function insertEvolutionDataInDialog (evoUrl) {
-  let evolutionData = null; if (evolutionCache.has(evoUrl)) {
+  let evolutionData = null; 
+  if (evolutionCache.has(evoUrl)) {
     evolutionData = evolutionCache.get(evoUrl);
   } else {
     evolutionData = await getEvolutionChain(evoUrl);
@@ -153,24 +195,6 @@ async function insertEvolutionDataInDialog (evoUrl) {
   } else {
     return "";
   }
-};
-
-const getAbilityData = async (abilityUrls) => {
-  return Promise.all(abilityUrls.map(async (abUrl) => {
-    const abData = await safeFetchJson(abUrl);
-      if (!abData) return { name: abUrl, effect: "No data available" };
-      const effectEntry = abData.effect_entries.find(
-        (entry) => entry.language.name === "de"
-      );
-      const abilityName = abData.names.find(
-        (nameEntry) => nameEntry.language.name === "de"
-      );
-      return {
-        name: abilityName ? abilityName.name : abUrl,
-        effect: effectEntry ? effectEntry.effect : "Keine Beschreibung verfügbar",
-      };
-    })
-  );
 };
 
 const getEvolutionChain = async (evoUrl) => {
