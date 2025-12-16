@@ -50,19 +50,21 @@ Fetch data from the PokeAPI.
 
 ```bash
 async function loadPokemon() {
-  currentOffset = 0;
-  console.log(currentOffset);
-  const data = await safeFetchJson(
-    "https://pokeapi.co/api/v2/pokemon?limit=35&offset=0"
-  );
-  if (!data) {
-    console.error("Failed to load initial Pokemon data");
-    reloadbutton();
-    return;
+  spinnerShow();
+  try {
+    const URL = `https://pokeapi.co/api/v2/pokemon?limit=30&offset=${currentOffset}`;
+    const data = await safeFetchJson(URL);
+    if (!data) {
+      console.error("Failed to load initial Pokemon data");
+      reloadbutton();
+      return;
+    }
+    currentOffset += 30;
+    await renderAllPokemon(data.results);
+  } finally {
+    spinnerHide();
   }
-  pokemonContainer.innerHTML = "";
-  await renderAllPokemon(data.results);
-}
+};
 ```
 Throw an error if the response wasn't successfull, parse the response and catch any errors.
 
@@ -79,18 +81,37 @@ async function safeFetchJson(url) {
 }
 ```
 
-Cache all fetched details in Maps, to prefend multiple requests.
+Check if a Map has the data safed bevore fetching it and
+cache all fetched details in Maps, to prefend multiple requests.
 ```bash
 async function loadPokemonDetails(pokemon) {
-  if (pokemonCache.has(pokemon.url)) {
-    return pokemonCache.get(pokemon.url);
+    spinnerShow();
+    try {
+    if (typeof pokemon === 'object' && pokemon !== null && 'url' in pokemon && pokemonCache.has(pokemon.url)) {
+        const pokemonData = pokemonCache.get(pokemon.url);
+        return pokemonData;
+      } else if (pokemonCache.has(pokemon)) {
+        const pokemonData = pokemonCache.get(pokemon);
+        return pokemonData;
+      } else {
+        const data = await fetchAndStorePokemonData(pokemon);
+        return data;
+      }
+    } finally {
+      spinnerHide();
   }
+};
+
+async function fetchAndStorePokemonData(pokemon) {
+          const data = await safeFetchJson(pokemon.url);
+        if (!data) return null;
+        const speciesData = await getSpeciesData(data.species.url);
+        const pokemonData = await mapPokemonData(data, speciesData, pokemon.url); 
+        pokemonCache.set(pokemon.url, pokemonData);
+        pushToList(pokemonData);
+        return pokemonData;
+};
 ```
-### What I am currently working on
-
-- search option for Pokemon names or indexes
-- evolution chain on the detailed view
-
 <br/>
 
 ## Installation
