@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/pokeball.png" width="100" alt="logo"/> 
+<img align="left" src="https://github.com/c-bakis/pokedex/blob/main/public/assets/img/pokeball.png" width="100" alt="logo"/> 
 <br/>
 
 # Pokedex
@@ -21,15 +21,15 @@ Especially for my son I decided to write this Pokedex in the german language.</p
 
 <br/>
   
-<img align="left" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/main_page.png" alt="pokedex"/>
+<img align="left" src="https://github.com/c-bakis/pokedex/blob/main/public/assets/img/main_page.png" alt="pokedex"/>
 <br/>
 <br clear="left">
 
 <br/>
 
-<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/menu.png" alt="menu"/>
+<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/public/assets/img/menu.png" alt="menu"/>
 
-<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/assets/img/dialog.png" alt="detailed view of pokemon"/>
+<img align="center" src="https://github.com/c-bakis/pokedex/blob/main/public/assets/img/dialog.png" alt="detailed view of pokemon"/>
 
 <p></p>
 <p></p>
